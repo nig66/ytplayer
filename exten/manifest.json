@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Hello popup",
+  "description": "Base Level Extension",
+  "version": "11.0",
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "popup.png"
+  },
+  "permissions": [
+    "activeTab"
+  ],
+  "content_scripts": [
+    {
+      "js": ["content.js"],
+      "matches": [
+        //"http://pi1b.lan/status/*",
+        "https://www.youtube.com/*"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Hi popup</h1>
+
+    <form class="refresh" action="http://pi1b.lan/status/" method="post">
+      <input id="videoId" type="text" name="videoId" value="1234567890a">
+      <input type="submit" value="Submit">
+    </form>
+    
+    <p>
+      <span>Queued: </span>
+      <span id="size">?</span>
+    </p>
+
+    <form class="refresh" action="http://pi1b.lan/status/?autoplay" method="post">
+      <input type="submit" value="Autoplay"> <span id="autoplay">?</span>
+    </form>
+    
+    <script src="popup.js"></script>
+    
+  </body>
+</html>
