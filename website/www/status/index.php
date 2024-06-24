@@ -108,9 +108,10 @@ $router->get('mem', function() {
 /***************************************
 * handle HTTP POST requests
 *
-*   POST ''           enqueue videoId
-*   POST '?dequeue'   dequeue the first videoId
-*   POST '?autoplay'  toggle autoplay
+*   POST ''                       enqueue videoId
+*   POST '?dequeue'               dequeue the first videoId
+*   POST '?dequeueId=<videoId>'   dequeue the specified videoId eg. "?dequeueId=QC8iQqtG0hg"
+*   POST '?autoplay'              toggle autoplay
 ****************************************/
 
 /**
@@ -121,6 +122,19 @@ $router->post('', function() use($player) {
   $videoId = trim($_POST["videoId"]);
   $player->enqueue($videoId);
   die("enqueued {$videoId}");
+});
+
+
+/**
+* HTTP request handler: POST '?dequeueId=<videoId>'
+* dequeue the specified videoId
+*/
+$router->post('dequeue', function() use($player) {
+  $json = $player->dequeue();
+  $str = json_encode($json, JSON_PRETTY_PRINT);
+  //die($json['videoId']);
+  header('Content-type: application/json');
+  die($str);
 });
 
 
