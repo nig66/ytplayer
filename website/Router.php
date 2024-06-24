@@ -54,20 +54,29 @@ class Router
   private $routes = [];
   
   /**
+  * return array keys sorted
+  */
+  private function get_keys_sorted(array $arr): array
+  {
+    $keys = array_keys($arr);
+    sort($keys);
+    return $keys;
+  }
+  
+  /**
+  * for the given queryString, find a matching route and invoke its handler function
   */
   private function invoke_matching_handler(string $queryString, array $routes): ?string
   {
-    parse_str($queryString, $arrQueryString);         # set $arrQueryString
-    $queryStringKeys = array_keys($arrQueryString);
-    sort($queryStringKeys);
+    parse_str($queryString, $arrQueryString);       # set $arrQueryString
+    $queryStringKeys = $this->get_keys_sorted($arrQueryString);
     
     $ret = [];
     
     foreach($routes as $route => $routeFunction) {
       
-      parse_str($route, $arrRoute);         # set $arrRoute
-      $routeKeys = array_keys($arrRoute);
-      sort($routeKeys);
+      parse_str($route, $arrRoute);       # set $arrRoute
+      $routeKeys = $this->get_keys_sorted($arrRoute);
       
       if ($queryStringKeys === $routeKeys) {
         try {

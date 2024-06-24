@@ -2,28 +2,35 @@
 
 require_once('../Router.php');          # mini route handler
 
-$router = new Router();
+$output = test_router();
 
-$router->get('', function() {
-  return "Hello root"; 
-});
 
-$router->get('fred', function($fred) {
-  return "foobar fred={$fred} x={$x}";
-});
+function test_router() {
+  
+  $router = new Router();
 
-$router->get('x&fred', function($fred, $x) {
-  return "Hi fred={$fred} and x={$x}"; 
-});
+  $router->get('', function() {
+    return "Hello root"; 
+  });
 
-$router->get('user&videoId', function($user, $videoId) {
-  #return "The user is {$name} and v is {$videoId}"; 
-  return "The user is {$user} and videoId is {$videoId}"; 
-});
+  $router->get('fred', function($fred) {
+    return "foobar fred={$fred}";
+  });
 
-$strOutput = $router->match($_SERVER['REQUEST_METHOD'], $_SERVER['QUERY_STRING']);
+  $router->get('x&fred', function($fred, $x) {
+    return "Hi fred={$fred} and x={$x}"; 
+  });
+
+  $router->get('user&videoId', function($user, $videoId) {
+    #return "The user is {$name} and v is {$videoId}"; 
+    return "The user is {$user} and videoId is {$videoId}"; 
+  });
+
+  return $router->match($_SERVER['REQUEST_METHOD'], $_SERVER['QUERY_STRING']);
+}
 
 ?>
 
-<title>test simple router v2</title>
-<xmp><?=$strOutput?></xmp>
+<title>test</title>
+<xmp><?=$_SERVER['QUERY_STRING']?></xmp>
+<xmp><?=$output?></xmp>
