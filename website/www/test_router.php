@@ -1,6 +1,6 @@
 <?php
 
-require_once('Router.php');          # mini route handler
+require_once('../Router.php');          # mini route handler
 
 $router = new Router();
 

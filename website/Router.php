@@ -69,8 +69,13 @@ class Router
       $routeKeys = array_keys($arrRoute);
       sort($routeKeys);
       
-      if ($queryStringKeys === $routeKeys)
-        $ret[] = call_user_func_array($routeFunction, $arrQueryString);
+      if ($queryStringKeys === $routeKeys) {
+        try {
+          $ret[] = call_user_func_array($routeFunction, $arrQueryString);
+        } catch (Error $e) {
+          echo "Route handler error: Missing parameter in handler for route '{$route}'. ", $e->getMessage(), "\n";
+        }
+      }
     }
     
     if (count($ret) > 1)

@@ -13,7 +13,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 # class files
-require_once('../../Route.php');          # mini route handler
+require_once('../../Router.php');         # mini route handler
 require_once('../../Player.php');         # player status controller
 
 
@@ -24,7 +24,7 @@ $queue_filename = '../../queue.txt';
 
 # helper classes
 $player = new Player($status_filename, $queue_filename);
-$router = new Router($_SERVER);
+$router = new Router();
 
 
 
@@ -49,10 +49,9 @@ $router = new Router($_SERVER);
 *     "size":     <int>
 *   }  
 */
-$router->get('state', function() use($player) {
-  $str_state = json_encode($player->getState(), JSON_PRETTY_PRINT);
+$router->get('state', function($state) use($player) {
   header('Content-type: application/json');
-  die($str_state);
+  return json_encode($player->getState(), JSON_PRETTY_PRINT);
 });
 
 
@@ -60,9 +59,9 @@ $router->get('state', function() use($player) {
 * HTTP request handler: GET '?queue'
 * show the raw queue file
 */
-$router->get('queue', function() use($queue_filename) {
+$router->get('queue', function($queue) use($queue_filename) {
   $str_queue = file_get_contents($queue_filename);
-  die("<xmp>{$str_queue}</xmp>");
+  return "<xmp>{$str_queue}</xmp>";
 });
 
 
@@ -70,8 +69,9 @@ $router->get('queue', function() use($queue_filename) {
 * HTTP request handler: GET '?autoplay'
 * get the autoplay state: on|off
 */
-$router->get('autoplay', function() use($player) {
-  die($player->getState()['autoplay']);
+
+$router->get('autoplay', function($autoplay) use($player) {
+  return $player->getState()['autoplay'];
 });
 
 
@@ -79,9 +79,8 @@ $router->get('autoplay', function() use($player) {
 * HTTP request handler: GET '?size'
 * get the size of the queue
 */
-$router->get('size', function() use($player) {
-  echo $player->getState()['size'];       # don't do "die(size));" here because die() treats numbers
-  die();                                  # as errors - it doesn't simply output them to std:out
+$router->get('size', function($size) use($player) {
+  return $player->getState()['size']; 
 });
 
 
@@ -89,7 +88,7 @@ $router->get('size', function() use($player) {
 * HTTP request handler: GET 'peek'
 * peek at the first videoId without removing it from the queue
 */
-$router->get('peek', function() use($player) {
+$router->get('peek', function($peek) use($player) {
   die($player->getState()['peek']);
 });
 
@@ -98,7 +97,7 @@ $router->get('peek', function() use($player) {
 * HTTP request handler: GET '?mem'
 * get the memory used by php
 */
-$router->get('mem', function() {
+$router->get('mem', function($mem) {
   $mem = memory_get_peak_usage() / 1024 / 1024;
   die(round($mem, 3).' MB');
 });
@@ -121,7 +120,7 @@ $router->get('mem', function() {
 $router->post('', function() use($player) {
   $videoId = trim($_POST["videoId"]);
   $player->enqueue($videoId);
-  die("enqueued {$videoId}");
+  return "enqueued {$videoId}";
 });
 
 
@@ -129,12 +128,11 @@ $router->post('', function() use($player) {
 * HTTP request handler: POST '?dequeueId=<videoId>'
 * dequeue the specified videoId
 */
-$router->post('dequeue', function() use($player) {
+$router->post('dequeue&videoId', function($dequeue, $videoId) use($player) {
   $json = $player->dequeue();
   $str = json_encode($json, JSON_PRETTY_PRINT);
-  //die($json['videoId']);
   header('Content-type: application/json');
-  die($str);
+  return $str;
 });
 
 
@@ -142,12 +140,12 @@ $router->post('dequeue', function() use($player) {
 * HTTP request handler: POST '?dequeue'
 * dequeue the first videoId
 */
-$router->post('dequeue', function() use($player) {
+$router->post('dequeue', function($dequeue) use($player) {
   $json = $player->dequeue();
   $str = json_encode($json, JSON_PRETTY_PRINT);
   //die($json['videoId']);
   header('Content-type: application/json');
-  die($str);
+  return $str;
 });
 
 
@@ -155,9 +153,9 @@ $router->post('dequeue', function() use($player) {
 * HTTP request handler: POST '?autoplay'
 * toggle autoplay
 */
-$router->post('autoplay', function() use($player) {
+$router->post('autoplay', function($autoplay) use($player) {
   $player->toggleAutoplay();
-  die($player->getState()['autoplay']);
+  return $player->getState()['autoplay'];
 });
 
 
@@ -165,10 +163,16 @@ $router->post('autoplay', function() use($player) {
 * HTTP request handler: POST 'clear'
 * clear the queue
 */
-$router->post('clear', function() use($queue_filename) {
+$router->post('clear', function($clear) use($queue_filename) {
   file_put_contents($queue_filename, '');
-  die();
+  return '';
 });
+
+
+// invoke handler
+$output = $router->match($_SERVER['REQUEST_METHOD'], $_SERVER['QUERY_STRING']);
+if (!is_null($output))
+  die($output);
 
 ?>
 <!DOCTYPE html>
