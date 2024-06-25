@@ -1,26 +1,28 @@
 <?php
 
 /**
-* https://www.php-fig.org/psr/psr-12/
+* Simple router to match HTTP requests by REQUEST_METHOD and QUERY_STRING param keys only.
 *
 * usage;
-*   $route = new clsRoute; 
+*   $router = new Router; 
 * 
-*   $route->get('', function(){
+*   $router->get('', function() {
 *     return 'Hi root';
 *   });
 * 
-*   $route->get('foo', function($foo){
+*   $router->get('foo', function($foo) {
 *     return "The value of foo is {$foo}"; 
 *   });
 * 
-*   $route->get('foo&bar', function($foo, $bar) {
+*   $router->get('foo&bar', function($foo, $bar) {
 *     return "foo is {$foo} and bar is {$bar}"; 
 *   });
 * 
-*   $str = $route->match('GET', '')                 # returns 'Hi root';
-*   $str = $route->match('GET', 'about')            # returns 'Hello about';
-*   $str = $route->match('GET', 'foo=xyz&bar=hi')   # returns 'foo is xyz and bar is hi';
+*   $str = $router->match('GET', '')                 # returns 'Hi root';
+*   $str = $router->match('GET', 'about')            # returns 'Hello about';
+*   $str = $router->match('GET', 'foo=xyz&bar=hi')   # returns 'foo is xyz and bar is hi';
+*
+* https://www.php-fig.org/psr/psr-12/
 */
 
 
@@ -33,17 +35,17 @@ class Router
   
   public function get(string $queryString, $handler): void
   {
-    $this->routes['GET'][$queryString] = $handler;
+    $this->add_route('GET', $queryString, $handler);
   }
 
   public function post(string $queryString, $handler): void
   {
-    $this->routes['POST'][$queryString] = $handler;
+    $this->add_route('POST', $queryString, $handler);
   }
 
   public function match(string $request_method, string $queryString): ?string
   {
-    return $this->invoke_matching_handler($queryString, $this->routes[$request_method]);
+    return $this->invoke_handler($queryString, $this->routes[$request_method]);
   }
 
 
@@ -54,47 +56,54 @@ class Router
   private $routes = [];
   
   /**
-  * return array keys sorted
+  * add route
   */
-  private function get_keys_sorted(array $arr): array
+  private function add_route(string $method, string $queryString, $handler): void
   {
-    $keys = array_keys($arr);
-    sort($keys);
-    return $keys;
+    $sorted_keys = $this->get_keys_sorted($queryString);
+    if (isset($this->routes[$method][$sorted_keys]))
+      throw new Exception("Route error: duplicate route '{$method} {$queryString}'");
+    $this->routes[$method][$sorted_keys] = $handler;
   }
+  
+  
+  /**
+  * for the given queryString, return just the keys, sorted
+  *
+  *   eg. given  'world=bar&hello=foo'
+  *       return 'hello&world'
+  */
+  private function get_keys_sorted(string $queryString): string
+  {
+    parse_str($queryString, $parsed);       # let $parse = $queryString as an array
+    $keys = array_keys($parsed);
+    sort($keys);
+    return implode('&', $keys);
+  }
+  
   
   /**
   * for the given queryString, find a matching route and invoke its handler function
   */
-  private function invoke_matching_handler(string $queryString, array $routes): ?string
+  private function invoke_handler(string $queryString, array $routes): ?string
   {
-    parse_str($queryString, $arrQueryString);       # set $arrQueryString
-    $queryStringKeys = $this->get_keys_sorted($arrQueryString);
+    $queryStringKeys = $this->get_keys_sorted($queryString);      # eg. 'hello&world'
     
-    $ret = [];
-    
-    foreach($routes as $route => $routeFunction) {
-      
-      parse_str($route, $arrRoute);       # set $arrRoute
-      $routeKeys = $this->get_keys_sorted($arrRoute);
-      
-      if ($queryStringKeys === $routeKeys) {
-        try {
-          $ret[] = call_user_func_array($routeFunction, $arrQueryString);
-        } catch (Error $e) {
-          echo "Route handler error: Missing parameter in handler for route '{$route}'. ", $e->getMessage(), "\n";
-        }
-      }
-    }
-    
-    if (count($ret) > 1)
-      throw new \Exception("More than one matching route handler for queryString '{$queryString}'");
-
-    return (1 === count($ret))      # if there is exactly one matching route
-      ? $ret[0]                     # then return the output from that route handler
-      : null;                       # otherwise return null
-  }
+    # return if there are no matching routes
+    if (!isset($routes[$queryStringKeys]))
+      return null;
   
+    parse_str($queryString, $parsed);       # let $parse = $queryString as an array
+    
+    # invoke the route handler
+    try {
+      $ret = call_user_func_array($routes[$queryStringKeys], $parsed);
+    } catch (Error $e) {
+      echo "Route handler error: Missing parameter in handler for route '{$route}'. ", $e->getMessage(), "\n";
+    }
+    return $ret;
+  }
+    
 }
 
 ?>
