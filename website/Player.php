@@ -48,20 +48,27 @@ class Player {
   * getState()
   *
   * retval: a jsonable associative array eg.;
-  *       [ "autoplay" => "on",
-  *         "size"     => 2,
-  *         "peek"     => "QC8iQqtG0hg" ]
+  *   [
+  *     "autoplay"  => "on",
+  *     "size"      => 2,
+  *     "peek"      => "QC8iQqtG0hg",
+  *     "mem"       => "350 MB"
+  *   ]
   */
   function getState() {
     
-    $peek = (0 == count($this->arr_queue))
+    $mem = memory_get_peak_usage() / 1024 / 1024;       # peak amount of memory being used by php
+    
+    $videoId = (0 == count($this->arr_queue))           # the videoId of the video at the top of the queue
       ? ''
       : $this->arr_queue[0];
     
-    return [ "autoplay" => $this->arr_status['autoplay'],       # "on"|"off"
-             "size"     => count($this->arr_queue),             # integer
-             "peek"     => $peek                                # empty string or videoId string
-           ];
+    return [
+      "autoplay" => $this->arr_status['autoplay'],      # string     "on"|"off"
+      "size"     => count($this->arr_queue),            # int        size of the queue
+      "peek"     => $videoId,                           # string     videoId or '' if the queue is empty
+      "mem"      => round($mem, 2).' MB'                # string     memory used by php
+    ];
   }
   
   
