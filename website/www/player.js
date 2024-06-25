@@ -56,7 +56,7 @@ function onPlayerStateChange(event) {
       
   console.log('Video ended');
   
-  fetch(statusUrl + '?dequeue', { method:"POST" })      // dequeue the first video
+  fetch(statusUrl + '?dequeueId=' + playerVideoId, { method:"POST" })      // dequeue the current video
     .then(() => {
       setTimeout(qNext, 0, event.target)                // q up the next video if there is one    
     })

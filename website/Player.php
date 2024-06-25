@@ -8,6 +8,7 @@
 
 * player.enqueue(videoId)     # add videoId to the queue
 * player.dequeue()            # dequeue the first videoId
+* player.dequeueId(videoId)   # dequeue the first videoId
 * player.toggleAutoplay()     # toggle autoplay
 *
 * $player = new Player($status_filename, $queue_filename);
@@ -120,6 +121,37 @@ class Player {
     
     // if there is at least one video in the queue, remove the first one and return its videoId
     $videoId = array_shift($this->arr_queue);
+    $str = implode(PHP_EOL, $this->arr_queue);          # imploding an empty array returns an empty string ''
+    file_put_contents($this->queue_filename, $str);
+    
+    return [ "videoId"  => $videoId,                    # videoId string
+             "autoplay" => $autoplay ];                 # "on"|"off"
+  }
+  
+  
+  /**
+  * dequeue the first videoId if it matches $videoId and save the queue
+  *
+  * retval:
+  *   {
+  *     "videoId": "<videoId>",
+  *     "autoplay": "on|off"
+  *   }
+  */
+  function dequeueId(string $videoId): array
+  {
+    $autoplay = $this->arr_status['autoplay'];          # "on"|"off"
+    
+    // if the queue is empty, return an empty string for the videoId
+    if (0 == count($this->arr_queue))
+      return [ "videoId"  => '',                        # no video to play
+               "autoplay" => $autoplay ];               # "on"|"off"
+    
+    // if the first video in the queue matches $videoId, remove it from the queue
+    if ($videoId == $this->arr_queue[0])
+      array_shift($this->arr_queue);
+
+    // save the queue file
     $str = implode(PHP_EOL, $this->arr_queue);          # imploding an empty array returns an empty string ''
     file_put_contents($this->queue_filename, $str);
     
