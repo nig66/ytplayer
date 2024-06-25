@@ -41,6 +41,16 @@ function refreshUi() {
   
   setBadge('x');
   
+  // fetch status
+  fetch(statusUrl + '?status')
+    .then(response => response.json())
+    .then((json) => {
+      document.getElementById("autoplay").innerHTML = 'bar '+json['autoplay'];   // display the autoplay status: on|off
+      document.getElementById("size").innerHTML = 'foo '+json['size'];           // display the queue size
+      var badgeMsg = (0 == json['size']) ? '' : json['size'];             // queue size for the badge message
+      setBadge(badgeMsg);
+    })
+  /*
   // fetch queue size & display it in the badge
   fetch(statusUrl + '?size')
     .then(response => response.text())
@@ -56,6 +66,7 @@ function refreshUi() {
     .then((autoplay) => {
       document.getElementById("autoplay").innerHTML = autoplay;
     })
+  */
 }
 
 

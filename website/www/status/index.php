@@ -31,7 +31,7 @@ $router = new Router();
 /***************************************
 * handle HTTP GET requests
 *
-*   GET '?state'      show the status as a json str
+*   GET '?state'      show the status as a json str { autoplay, peek, size }
 *   GET '?queue'      show the raw queue file
 *   GET '?autoplay'   get the autoplay status: on|off
 *   GET '?size'       get the size of the queue
@@ -196,7 +196,11 @@ if (!is_null($output))
       <input type="submit" value="Autoplay">
       <span><?=$player->getState()['autoplay']?></span>
     </form>
-    
+    <p>
+      <span>Queued:</span>
+      <span><?=$player->getState()['size']?></span>
+    </p>
+
     <font color="yellow">
       <h1>State</h1>
     </font>
@@ -242,11 +246,6 @@ if (!is_null($output))
     </div>
     
     <br/>
-
-    <div>
-      <span>Queued:</span>
-      <span><?=$player->getState()['size']?></span>
-    </div>
 
     <!-- state -->
     <xmp><?=json_encode($player->getState(), JSON_PRETTY_PRINT)?></xmp>
