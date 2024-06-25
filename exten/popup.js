@@ -36,37 +36,21 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// refresh badge
+// refresh page
 function refreshUi() {
   
   setBadge('x');
   
   // fetch status
-  fetch(statusUrl + '?status')
+  fetch(statusUrl + '?state')
     .then(response => response.json())
     .then((json) => {
-      document.getElementById("autoplay").innerHTML = 'bar '+json['autoplay'];   // display the autoplay status: on|off
-      document.getElementById("size").innerHTML = 'foo '+json['size'];           // display the queue size
-      var badgeMsg = (0 == json['size']) ? '' : json['size'];             // queue size for the badge message
+      var size = json['size'].toString();
+      document.getElementById("autoplay").innerHTML = json['autoplay'];   // display the autoplay status: on|off
+      document.getElementById("size").innerHTML = size;                   // display the queue size
+      var badgeMsg = ('0' == size) ? '' : size;                               // queue size for the badge message
       setBadge(badgeMsg);
     })
-  /*
-  // fetch queue size & display it in the badge
-  fetch(statusUrl + '?size')
-    .then(response => response.text())
-    .then((size) => {
-      document.getElementById("size").innerHTML = size;   // display the queue size
-      var msg = (0 == size) ? '' : size;
-      setBadge(msg);                                      // display the queue size
-    })
-    
-  // fetch the autoplay status and display it
-  fetch(statusUrl + '?autoplay')
-    .then(response => response.text())
-    .then((autoplay) => {
-      document.getElementById("autoplay").innerHTML = autoplay;
-    })
-  */
 }
 
 
@@ -81,17 +65,3 @@ function setBadge(msg) {
     chrome.action.setBadgeText({text:msg})
   }
 }
-
-
-
-/**
-document.querySelectorAll("form.pd").forEach(function(element) {
-  element.addEventListener("submit", function(event){
-    event.preventDefault();
-    fetch(element.action, {
-      method: "post",
-      body: new URLSearchParams(new FormData(element))
-    });
-  })
-});
-*/
