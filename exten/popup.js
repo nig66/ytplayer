@@ -8,17 +8,22 @@
 const statusUrl   = 'http://pi1b.lan/status/';
 
 
-// when the DOM is ready
+/**
+* DOMContentLoaded event listener
+*/
 document.addEventListener('DOMContentLoaded', function() {
 
   // parse the url for a videoId and if found, write it to the videoId textbox
   let queryOptions = { active: true, lastFocusedWindow: true };
   
+  // if the url contains a youtube videoId then show it
   chrome.tabs.query(queryOptions, tabs => {
     const currentUrl = tabs[0].url;                   // url of the current active tab
     const videoId = parseYouTubeUrl(currentUrl);
-    if (null !== videoId)
+    if (null !== videoId) {
+      document.getElementById("showVideoId").innerHTML = videoId;
       document.getElementById("videoId").value = videoId;
+    }
   });
   
   // event listener to prevent forms redirect and instead refresh the UI to redraw the popup
@@ -27,14 +32,34 @@ document.addEventListener('DOMContentLoaded', function() {
       handleSubmit(element, event);
     })
   });
+  
+  // event listener to show a videoId extracted from a Url pasted into the textbox
+  document.getElementById("videoUrl").addEventListener("input", (event) => {
+    const videoId = parseYouTubeUrl(event.target.value.trim());
+    displayVideoId(videoId);
+  });
 
   // refresh the popup
   refreshUi();
 });
 
 
+// display a videoId that has been extracted from a Url
+function displayVideoId(videoId) {
+  if (null == videoId) {
+    //document.getElementById("submitVideoId").disabled = true;
+    document.getElementById("showVideoId").innerHTML = "";
+  } else {
+    //document.getElementById("submitVideoId").disabled = false;
+    document.getElementById("showVideoId").innerHTML = videoId;
+    document.getElementById("videoId").value = videoId;
+  }
+}
+
+
+
 /**
-* Parse a YouTube Url and return the 11 char videoId (or null if none found) from a string of three possible patterns;
+* Parse a YouTube Url and return the 11 char videoId (or null if none found) from a string of possible patterns;
 *
 *   version: 1.2
 * 
@@ -50,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
 */
 function parseYouTubeUrl(str) {
   
-  var myReg = /^[\w-]{11}$|(?<=\?v=)[\w-]{11}(?=&|$)|(?<=\/)[\w-]{11}(?=\?)|(?<=\/shorts\/)[\w-]{11}$/g;    // v1.2
+  var myReg = /^[\w-]{11}$|(?<=\?v=)[\w-]{11}(?=&|$)|(?<=\/)[\w-]{11}(?=\?)|(?<=\/shorts\/)[\w-]{11}$/g;  // v1.2
   // var myReg = /^[\w-]{11}$|(?<=\?v=)[\w-]{11}$|(?<=\/)[\w-]{11}(?=\?)|(?<=\/shorts\/)[\w-]{11}$/g;     // v1.1
   // var myReg = /^[\w-]{11}$|(?<=\?v=)[\w-]{11}$|(?<=\/)[\w-]{11}(?=\?)/g;                               // v1.0
   
@@ -63,21 +88,6 @@ function parseYouTubeUrl(str) {
   }
 }
 
-
-// parse the the browser address bar for a YouTube videoId
-function xparseUrl(callback) {
-  
-  let queryOptions = { active: true, lastFocusedWindow: true };
-  
-  chrome.tabs.query(queryOptions, tabs => {
-    
-    const url_string = tabs[0].url;
-    const url = new URL(url_string);
-    const videoId = url.searchParams.get("v");
-    
-    callback(videoId);
-  });
-}
 
 
 // when a form submit button is clicked, prevent page redirect and instead refresh the UI to redraw the popup
