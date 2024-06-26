@@ -33,8 +33,10 @@ $router = new Router();
 *
 *   GET '?state'      show the status as a json str { autoplay, peek, size }
 *   GET '?queue'      show the raw queue file
-*   GET '?autoplay'   get the autoplay status: on|off
+*
+* deprecated;
 *   GET '?size'       get the size of the queue
+*   GET '?autoplay'   get the autoplay status: on|off
 *   GET '?peek'       peek at the first videoId
 *   GET '?mem'        get the memory used by php
 ****************************************/
@@ -46,7 +48,8 @@ $router = new Router();
 *   {
 *     "autoplay": "on"|"off",
 *     "peek":     "<videoId>",
-*     "size":     <int>
+*     "size":     <int>,
+*     "mem":     "<n> MB"
 *   }  
 */
 $router->get('state', function($state) use($player) {
@@ -64,43 +67,6 @@ $router->get('queue', function($queue) use($queue_filename) {
   return "<xmp>{$str_queue}</xmp>";
 });
 
-
-/**
-* HTTP request handler: GET '?autoplay'
-* get the autoplay state: on|off
-*/
-
-$router->get('autoplay', function($autoplay) use($player) {
-  return $player->getState()['autoplay'];
-});
-
-
-/**
-* HTTP request handler: GET '?size'
-* get the size of the queue
-*/
-$router->get('size', function($size) use($player) {
-  return $player->getState()['size']; 
-});
-
-
-/**
-* HTTP request handler: GET 'peek'
-* peek at the first videoId without removing it from the queue
-*/
-$router->get('peek', function($peek) use($player) {
-  die($player->getState()['peek']);
-});
-
-
-/**
-* HTTP request handler: GET '?mem'
-* get the memory used by php
-*/
-$router->get('mem', function($mem) {
-  $mem = memory_get_peak_usage() / 1024 / 1024;
-  die(round($mem, 3).' MB');
-});
 
 
 
@@ -143,7 +109,6 @@ $router->post('dequeue&videoId', function($dequeue, $videoId) use($player) {
 $router->post('dequeue', function($dequeue) use($player) {
   $json = $player->dequeue();
   $str = json_encode($json, JSON_PRETTY_PRINT);
-  //die($json['videoId']);
   header('Content-type: application/json');
   return $str;
 });
@@ -173,6 +138,44 @@ $router->post('clear', function($clear) use($queue_filename) {
 $output = $router->match($_SERVER['REQUEST_METHOD'], $_SERVER['QUERY_STRING']);
 if (!is_null($output))
   die($output);
+
+
+/*
+/**
+* HTTP request handler: GET '?autoplay'
+* get the autoplay state: on|off
+$router->get('xautoplay', function($autoplay) use($player) {
+  return $player->getState()['autoplay'];
+});
+*/
+
+
+/**
+* HTTP request handler: GET '?size'
+* get the size of the queue
+$router->get('xsize', function($size) use($player) {
+  return $player->getState()['size']; 
+});
+*/
+
+
+/**
+* HTTP request handler: GET 'peek'
+* peek at the first videoId without removing it from the queue
+$router->get('xpeek', function($peek) use($player) {
+  die($player->getState()['peek']);
+});
+*/
+
+
+/**
+* HTTP request handler: GET '?mem'
+* get the memory used by php
+$router->get('xmem', function($mem) {
+  $mem = memory_get_peak_usage() / 1024 / 1024;
+  die(round($mem, 3).' MB');
+});
+*/
 
 ?>
 <!DOCTYPE html>
