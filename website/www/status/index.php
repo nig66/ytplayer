@@ -94,8 +94,8 @@ $router->post('', function() use($player) {
 * HTTP request handler: POST '?dequeueId=<videoId>'
 * dequeue the specified videoId
 */
-$router->post('dequeue&videoId', function($dequeue, $videoId) use($player) {
-  $json = $player->dequeue();
+$router->post('dequeueId', function($dequeueId) use($player) {
+  $json = $player->dequeueId($dequeueId);
   $str = json_encode($json, JSON_PRETTY_PRINT);
   header('Content-type: application/json');
   return $str;
