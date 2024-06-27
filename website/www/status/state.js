@@ -10,6 +10,17 @@
 const statusUrl   = 'http://pi1b.lan/status/';
 
 
+// do first refresh
+tickerRefresh();
+
+
+// refeshUi and start a timer to do the next refeshUi
+function tickerRefresh() {
+  refeshUI();
+  setTimeout(tickerRefresh, 4000);
+}
+
+
 // intercept form submits
 document.querySelectorAll("form.pd").forEach(function(element) {
   

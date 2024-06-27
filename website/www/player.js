@@ -207,9 +207,9 @@ function onPlayerError(event) {
 
   const errCode = event.data;
   const errTxt = (150 == errCode)
-    ? 'Playback disabled by video owner'
+    ? 'video owner blocked playback'
     : 'unknown code';
-  const errMsg = 'Error ' + errCode + ': ' + errTxt;
+  const errMsg = 'Err ' + errCode + ': ' + errTxt + ' ' + player.getVideoData()['video_id'];
   console.log(errMsg);
   
   // save the error message then remove the troublesome video from the queue and continue
