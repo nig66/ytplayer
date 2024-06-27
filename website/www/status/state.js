@@ -23,12 +23,37 @@ document.querySelectorAll("form.pd").forEach(function(element) {
     })
     .then((response) => {
       setTimeout(function() {
-        window.location.reload();                     // refresh the webpage
+        refeshUI();
       }, 0)
     })
     
   })
 })
+
+
+
+/**
+* refresh the changeable UI elements; autoplay status, queued count, status json, queue
+*/
+function refeshUI() {
+
+  // refresh the autoplayStatus, queueSize & stateJson
+  fetch(statusUrl + '?state')
+    .then(response => response.json())
+    .then((json) => {
+      document.getElementById("autoplayStatus").innerHTML = json['autoplay'];
+      document.getElementById("queueSize").innerHTML = json['size'];
+      document.getElementById("stateJson").innerHTML = JSON.stringify(json, null, 2);
+    });
+    
+  // refresh the queue
+  fetch(statusUrl + '?queue')
+    .then((response) => response.text())
+    .then((text) => {
+      document.getElementById("rawQueue").innerHTML = text;
+    });
+}
+
 
 
 /**
