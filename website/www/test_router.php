@@ -1,9 +1,17 @@
 <?php
 
-
 require_once('../Router.php');          # mini route handler
-
 $output = test_router();
+
+
+
+function test_logfile()
+{
+  $logfilename= '../log.txt';
+  $msg = 'hello world '.microtime();
+  $flg = file_put_contents($logfilename, PHP_EOL.$msg, FILE_APPEND|LOCK_EX);
+  return file_get_contents($logfilename);
+}
 
 
 function test_router() {
