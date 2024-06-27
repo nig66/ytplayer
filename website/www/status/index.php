@@ -78,6 +78,7 @@ $router->get('queue', function($queue) use($queue_filename) {
 *   POST '?autoplay'              toggle autoplay
 *   POST '?clear'                 clear the queue
 *   POST '?message=<msg>'         set the status message
+*   POST '?unsetMessage           unset the status message
 ****************************************/
 
 /**
@@ -146,6 +147,15 @@ $router->post('message', function($message) use($player) {
 });
 
 
+/**
+* HTTP request handler: POST '?unsetMessage'
+* unset the status message
+*/
+$router->post('unsetMessage', function($unsetMessage) use($player) {
+  $player->unsetMessage();
+  return '';
+});
+
 
 
 /************************
@@ -181,6 +191,8 @@ if (!is_null($output))
         <input type="submit" value="Autoplay">
         <span id="autoplayStatus"><?=$player->getState()['autoplay']?></span>
       </form></td>
+      <!-- mem -->
+      <td><?=$player->getState()['mem']?></td>
       <!-- Size of the queue -->
       <td align="right">
         <span>Queued:</span>
@@ -242,8 +254,8 @@ if (!is_null($output))
       </form>
 
       <!-- clear message -->
-      <form class="inline pd" action="/status/?clearMessage" method="post">
-        <input type="submit" value="Clear">
+      <form class="inline pd" action="/status/?unsetMessage" method="post">
+        <input type="submit" value="Unset">
       </form>
       
     </div>
