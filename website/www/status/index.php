@@ -63,8 +63,8 @@ $router->get('state', function($state) use($player) {
 * show the raw queue file
 */
 $router->get('queue', function($queue) use($queue_filename) {
-  $str_queue = file_get_contents($queue_filename);
-  return "<xmp>{$str_queue}</xmp>";
+  header("Content-Type: text/plain");
+  return file_get_contents($queue_filename);
 });
 
 
@@ -78,6 +78,7 @@ $router->get('queue', function($queue) use($queue_filename) {
 *   POST '?autoplay'              toggle autoplay
 *   POST '?clear'                 clear the queue
 *   POST '?message=<msg>'         set the status message
+*   POST '?unsetMessage           unset the status message
 ****************************************/
 
 /**
@@ -146,6 +147,15 @@ $router->post('message', function($message) use($player) {
 });
 
 
+/**
+* HTTP request handler: POST '?unsetMessage'
+* unset the status message
+*/
+$router->post('unsetMessage', function($unsetMessage) use($player) {
+  $player->unsetMessage();
+  return '';
+});
+
 
 
 /************************
@@ -166,7 +176,8 @@ if (!is_null($output))
     <style>
       label,input[text] {display:flex; flex-direction:column}
       label {color:cyan}
-      xmp,a,span {color:white}
+      a {color:yellow}
+      xmp, span {color:white}
       form.inline {display:inline}
       input#videoUrl {width:18em}
     </style>
@@ -175,18 +186,18 @@ if (!is_null($output))
   <body bgcolor="DarkSlateGrey">
 
     <!-- Autoplay -->
-    <form class="pd" action="/status/?autoplay" method="post">
+    <form class="inline pd" action="/status/?autoplay" method="post">
+      <span id="autoplayStatus"><?=$player->getState()['autoplay']?></span>
       <input type="submit" value="Autoplay">
-      <span><?=$player->getState()['autoplay']?></span>
     </form>
-    <p>
-      <span>Queued:</span>
-      <span><?=$player->getState()['size']?></span>
-    </p>
-
-    <font color="yellow">
-      <h1>State</h1>
-    </font>
+    
+    <!-- mem -->
+    &nbsp;&nbsp;<?=$player->getState()['mem']?>&nbsp;&nbsp;
+    
+    <!-- Size of the queue -->
+    <span id="queueSize">Queued: <?=$player->getState()['size']?></span>
+  
+    <h1><a href=".">Status</a></h1>
 
     <!-- Enqueue -->
     <form class="pd" action="/status/" method="post">
@@ -232,22 +243,25 @@ if (!is_null($output))
         <input type="submit" value="Clear">
       </form>
 
+      <!-- unset message -->
+      <form class="inline pd" action="/status/?unsetMessage" method="post">
+        <input type="submit" value="Unset msg">
+      </form>
+      
       <!-- send message -->
       <form class="inline pd" action="/status/?message" method="post">
         <label for="v5">send message</label>
         <input type="text" name="message" value="hello foo world" id="v5">
-        <input type="submit" value="Post">
+        <input type="submit" value="Send">
       </form>
-      
+
     </div>
     
-    <br/>
-
     <!-- state -->
-    <xmp><?=json_encode($player->getState(), JSON_PRETTY_PRINT)?></xmp>
+    <xmp id="stateJson"><?=json_encode($player->getState(), JSON_PRETTY_PRINT)?></xmp>
     
     <!-- queue -->
-    <xmp><?=implode(PHP_EOL, $player->getQueue())?></xmp>
+    <xmp id="rawQueue"><?=implode(PHP_EOL, $player->getQueue())?></xmp>
     
     <script src="state.js"></script>
   </body>

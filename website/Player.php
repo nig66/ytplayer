@@ -12,6 +12,7 @@
 * player.toggleAutoplay()     # toggle autoplay
 * player.getMessage()         # get status message
 * player.setMessage()         # set status message
+* player.unsetMessage()       # unSet status message
 *
 * $player = new Player($status_filename, $queue_filename);
 */
@@ -209,6 +210,17 @@ class Player {
     return $message; //$this->arr_status['message'];
   }
 
+
+
+  /**
+  * unset status message
+  */
+  function unsetMessage(): void
+  {
+    if (isset($this->arr_status['message']))
+      unset($this->arr_status['message']);
+    $this->saveStatus();
+  }
 
 
 
