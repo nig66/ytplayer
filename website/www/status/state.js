@@ -42,7 +42,7 @@ function refeshUI() {
     .then(response => response.json())
     .then((json) => {
       document.getElementById("autoplayStatus").innerHTML = json['autoplay'];
-      document.getElementById("queueSize").innerHTML = json['size'];
+      document.getElementById("queueSize").innerHTML = 'Queued: ' + json['size'];
       document.getElementById("stateJson").innerHTML = JSON.stringify(json, null, 2);
     });
     

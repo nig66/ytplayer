@@ -177,7 +177,7 @@ if (!is_null($output))
       label,input[text] {display:flex; flex-direction:column}
       label {color:cyan}
       a {color:yellow}
-      xmp,span {color:white}
+      xmp, span {color:white}
       form.inline {display:inline}
       input#videoUrl {width:18em}
     </style>
@@ -185,20 +185,17 @@ if (!is_null($output))
   </head>
   <body bgcolor="DarkSlateGrey">
 
-    <table width="100%"><tr>
-      <!-- Autoplay -->
-      <td><form class="pd" action="/status/?autoplay" method="post">
-        <input type="submit" value="Autoplay">
-        <span id="autoplayStatus"><?=$player->getState()['autoplay']?></span>
-      </form></td>
-      <!-- mem -->
-      <td><?=$player->getState()['mem']?></td>
-      <!-- Size of the queue -->
-      <td align="right">
-        <span>Queued:</span>
-        <span id="queueSize"><?=$player->getState()['size']?></span>
-      </td>
-    </tr></table>
+    <!-- Autoplay -->
+    <form class="inline pd" action="/status/?autoplay" method="post">
+      <span id="autoplayStatus"><?=$player->getState()['autoplay']?></span>
+      <input type="submit" value="Autoplay">
+    </form>
+    
+    <!-- mem -->
+    &nbsp;&nbsp;<?=$player->getState()['mem']?>&nbsp;&nbsp;
+    
+    <!-- Size of the queue -->
+    <span id="queueSize">Queued: <?=$player->getState()['size']?></span>
   
     <h1><a href=".">Status</a></h1>
 
@@ -246,6 +243,11 @@ if (!is_null($output))
         <input type="submit" value="Clear">
       </form>
 
+      <!-- unset message -->
+      <form class="inline pd" action="/status/?unsetMessage" method="post">
+        <input type="submit" value="Unset msg">
+      </form>
+      
       <!-- send message -->
       <form class="inline pd" action="/status/?message" method="post">
         <label for="v5">send message</label>
@@ -253,11 +255,6 @@ if (!is_null($output))
         <input type="submit" value="Send">
       </form>
 
-      <!-- clear message -->
-      <form class="inline pd" action="/status/?unsetMessage" method="post">
-        <input type="submit" value="Unset">
-      </form>
-      
     </div>
     
     <!-- state -->
