@@ -99,7 +99,7 @@ class Router
     try {
       $ret = call_user_func_array($routes[$queryStringKeys], $parsed);
     } catch (Error $e) {
-      echo "Route handler error: Missing parameter in handler for route '{$route}'. ", $e->getMessage(), "\n";
+      echo "Route handler error: Missing parameter in handler for route '{$queryString}'. ", $e->getMessage(), "\n";
     }
     return $ret;
   }

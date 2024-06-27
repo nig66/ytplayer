@@ -10,6 +10,8 @@
 * player.dequeue()            # dequeue the first videoId
 * player.dequeueId(videoId)   # dequeue the first videoId
 * player.toggleAutoplay()     # toggle autoplay
+* player.getMessage()         # get status message
+* player.setMessage()         # set status message
 *
 * $player = new Player($status_filename, $queue_filename);
 */
@@ -54,6 +56,7 @@ class Player {
   *     "size"      => 2,
   *     "peek"      => "QC8iQqtG0hg",
   *     "mem"       => "350 MB"
+  *     "message"   => "Hello world"
   *   ]
   */
   function getState() {
@@ -63,13 +66,18 @@ class Player {
     $videoId = (0 == count($this->arr_queue))           # the videoId of the video at the top of the queue
       ? ''
       : $this->arr_queue[0];
-    
-    return [
+      
+    $arr = [
       "autoplay" => $this->arr_status['autoplay'],      # string     "on"|"off"
       "size"     => count($this->arr_queue),            # int        size of the queue
       "peek"     => $videoId,                           # string     videoId or '' if the queue is empty
-      "mem"      => round($mem, 2).' MB'                # string     memory used by php
+      "mem"      => round($mem, 2).' MB',               # string     memory used by php
     ];
+
+    if (isset($this->arr_status['message']))
+      $arr['message'] = $this->arr_status['message'];
+    
+    return $arr;
   }
   
   
@@ -171,13 +179,55 @@ class Player {
     $this->arr_status['autoplay'] = ('off' == $this->arr_status['autoplay'])
       ? 'on'
       : 'off';
-      
-    $str_status = json_encode($this->arr_status);                 # JSON_PRETTY_PRINT
-    file_put_contents($this->status_filename, $str_status);
-    
+    $this->saveStatus();
+
     return $arr_status['autoplay'];
   }
+  
+  
+  
+  /**
+  * get status message
+  */
+  function getMessage(): string
+  {
+    return (isset($this->arr_status['message']))
+      ? $this->arr_status['message']
+      : '';
+  }
 
+
+
+  /**
+  * set status message
+  */
+  function setMessage(string $message): string
+  {
+    $this->arr_status['message'] = $message;
+    $this->saveStatus();
+    
+    return $message; //$this->arr_status['message'];
+  }
+
+
+
+
+  /******************************
+  *
+  * private
+  *
+  */
+  
+  
+  /**
+  * save the status json file
+  */
+  private function saveStatus(): void
+  {
+    $str_status = json_encode($this->arr_status);                 # JSON_PRETTY_PRINT
+    file_put_contents($this->status_filename, $str_status);
+  }
+  
 }
 
 ?>

@@ -69,7 +69,6 @@ $router->get('queue', function($queue) use($queue_filename) {
 
 
 
-
 /***************************************
 * handle HTTP POST requests
 *
@@ -77,6 +76,8 @@ $router->get('queue', function($queue) use($queue_filename) {
 *   POST '?dequeue'               dequeue the first videoId
 *   POST '?dequeueId=<videoId>'   dequeue the specified videoId eg. "?dequeueId=QC8iQqtG0hg"
 *   POST '?autoplay'              toggle autoplay
+*   POST '?clear'                 clear the queue
+*   POST '?message=<msg>'         set the status message
 ****************************************/
 
 /**
@@ -134,48 +135,27 @@ $router->post('clear', function($clear) use($queue_filename) {
 });
 
 
-// invoke handler
+/**
+* HTTP request handler: POST '?message'
+* set the status message
+*/
+$router->post('message', function($message) use($player) {
+  $message = trim($_POST["message"]);
+  $player->setMessage($message);
+  return $player->getState()['message'];
+});
+
+
+
+
+/************************
+*
+* invoke the appropriate handler if there is one, otherwise return the status webpage
+*
+*/
 $output = $router->match($_SERVER['REQUEST_METHOD'], $_SERVER['QUERY_STRING']);
 if (!is_null($output))
   die($output);
-
-
-/*
-/**
-* HTTP request handler: GET '?autoplay'
-* get the autoplay state: on|off
-$router->get('xautoplay', function($autoplay) use($player) {
-  return $player->getState()['autoplay'];
-});
-*/
-
-
-/**
-* HTTP request handler: GET '?size'
-* get the size of the queue
-$router->get('xsize', function($size) use($player) {
-  return $player->getState()['size']; 
-});
-*/
-
-
-/**
-* HTTP request handler: GET 'peek'
-* peek at the first videoId without removing it from the queue
-$router->get('xpeek', function($peek) use($player) {
-  die($player->getState()['peek']);
-});
-*/
-
-
-/**
-* HTTP request handler: GET '?mem'
-* get the memory used by php
-$router->get('xmem', function($mem) {
-  $mem = memory_get_peak_usage() / 1024 / 1024;
-  die(round($mem, 3).' MB');
-});
-*/
 
 ?>
 <!DOCTYPE html>
@@ -234,6 +214,11 @@ $router->get('xmem', function($mem) {
       <input type="text" name="videoId" value="46W7uzj-51w" id="v3">
       <input type="submit" value="Post">
     </form>
+    <form class="pd" action="/status/" method="post">
+      <label for="v4">blocked by author</label>
+      <input type="text" name="videoId" value="vZLd81IHGQw" id="v4">
+      <input type="submit" value="Post">
+    </form>
     <br/>
     
     <div>
@@ -246,6 +231,14 @@ $router->get('xmem', function($mem) {
       <form class="inline pd" action="/status/?clear" method="post">
         <input type="submit" value="Clear">
       </form>
+
+      <!-- send message -->
+      <form class="inline pd" action="/status/?message" method="post">
+        <label for="v5">send message</label>
+        <input type="text" name="message" value="hello foo world" id="v5">
+        <input type="submit" value="Post">
+      </form>
+      
     </div>
     
     <br/>
