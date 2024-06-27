@@ -46,17 +46,31 @@ event handling
 */
 
 function onPlayerStateChange(event) {
-  const playerState = event.data;
-  const playerVideoId = player.getVideoData()['video_id'];
   
-  console.log('Player state change ' + playerState + ' ' + playerVideoId);
+  const playerState = event.data;
+  const videoId = player.getVideoData()['video_id'];
+  
+/**  
+  const author = player.getVideoData()['author'];
+  const title = player.getVideoData()['title'];
+  const errorCode = player.getVideoData()['errorCode'];     // null |
+  const isPlayable = player.getVideoData()['isPlayable'];   // true | false
+  const isLive = player.getVideoData()['isLive'];           // true | false
+  console.log(player.getVideoData());
+*/
+  console.log('Player state change ' + playerState + ' ' + videoId);
+  
+  if (1 == playerState) {                       // state: PLAYING
+    const duration = player.getDuration();      // available just after video starts playing. after buffering?
+    console.log('duration: ' + duration);
+  }
   
   if (event.data !== 0)         // 0 = ENDED
       return;
       
   console.log('Video ended');
   
-  fetch(statusUrl + '?dequeueId=' + playerVideoId, { method:"POST" })      // dequeue the current video
+  fetch(statusUrl + '?dequeueId=' + videoId, { method:"POST" })      // dequeue the current video
     .then(() => {
       setTimeout(qNext, 0, event.target)                // q up the next video if there is one    
     })
@@ -87,7 +101,7 @@ function qNext(target) {
     })
     .then((flg) => {
       if (flg) {
-        console.log('Start timer');
+        //console.log('Start timer');
         setTimeout(qNext, 4000, target);
       }
     })
@@ -187,6 +201,28 @@ function onAutoplayBlocked(event) {
   console.log('Autoplay blocked: ' + event.data)
 }
 
+
+// YTplayer error handler
 function onPlayerError(event) {
-  console.log('Player error: ' + event.data)
+
+  const errCode = event.data;
+  const errTxt = (150 == errCode)
+    ? 'Playback disabled by video owner'
+    : 'unknown code';
+  const errMsg = 'Error ' + errCode + ': ' + errTxt;
+  console.log(errMsg);
+  
+  // save the error message then remove the troublesome video from the queue and continue
+  fetch(statusUrl + '?message', {
+      method: "POST",
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+      body: new URLSearchParams({ message: errMsg })
+    })
+    .then(() => {
+      const videoId = player.getVideoData()['video_id'];
+      fetch(statusUrl + '?dequeueId=' + videoId, { method:"POST" })      // dequeue the current video
+        .then(() => {
+          setTimeout(qNext, 0, event.target)                // q up the next video if there is one    
+        })
+    })
 }
