@@ -1,6 +1,6 @@
 /**
-* To test your website as if user were strongly engaged with your site and playback autoplay would be always
-* allowed, you can disable the autoplay policy entirely by using a command line flag:
+* "To test your website as if user were strongly engaged with your site and playback autoplay would be always
+* allowed, you can disable the autoplay policy entirely by using a command line flag:"
 * 
 *   chrome.exe --autoplay-policy=no-user-gesture-required
 * 
@@ -19,17 +19,6 @@ event handling
 
   onPlayerReady
   
-  onPlayerStateChange
-   -1:unstarted
-    0:ended
-    1:PLAYING
-    2:PAUSED
-    3:buffering
-    5:CUED
-    
-  keypress spacebar:  if CUED or PAUSED then play
-                      if PLAYING then pause
-  
   onTimeout
     checkState;
       if there is a video to play and autoplay is on then
@@ -37,27 +26,44 @@ event handling
       else
         timer(onTimeout, 2000)
 *
-* dequeue response;
-*
-* { 
-*   "videoId":  ""|"<videoId>",
-*   "autoplay": "on"|"off"
-* }
 */
 
+
+// globals
+const statusUrl   = 'http://pi1b.lan/status/';
+
+// After the API code downloads, replace the 'ytplayer' element with an <iframe> and YouTube player .
+var player;
+
+// timer to check for video added to empty queue when autoplay is on, or autoplay enabled when queue not empty
+var timeoutId;
+
+
+
+/**  
+*  const author = player.getVideoData()['author'];
+*  const title = player.getVideoData()['title'];
+*  const errorCode = player.getVideoData()['errorCode'];     // null |
+*  const isPlayable = player.getVideoData()['isPlayable'];   // true | false
+*  const isLive = player.getVideoData()['isLive'];           // true | false
+*
+*  onPlayerStateChange;
+*
+*   -1:unstarted
+*    0:ended
+*    1:PLAYING
+*    2:PAUSED
+*    3:buffering
+*    5:CUED
+*    
+*  keypress spacebar:  if CUED or PAUSED then play
+*                      if PLAYING then pause
+*/
 function onPlayerStateChange(event) {
   
   const playerState = event.data;
   const videoId = player.getVideoData()['video_id'];
   
-/**  
-  const author = player.getVideoData()['author'];
-  const title = player.getVideoData()['title'];
-  const errorCode = player.getVideoData()['errorCode'];     // null |
-  const isPlayable = player.getVideoData()['isPlayable'];   // true | false
-  const isLive = player.getVideoData()['isLive'];           // true | false
-  console.log(player.getVideoData());
-*/
   console.log('Player state change ' + playerState + ' ' + videoId);
   
   if (1 == playerState) {                       // state: PLAYING
@@ -75,6 +81,7 @@ function onPlayerStateChange(event) {
       setTimeout(qNext, 0, event.target)                // q up the next video if there is one    
     })
 }
+
 
 
 /**
@@ -108,6 +115,7 @@ function qNext(target) {
 }
 
 
+
 // fired once when the YouTube player is ready
 function onPlayerReady(event) {
   
@@ -124,6 +132,7 @@ function onPlayerReady(event) {
 }
 
 
+
 // Load the IFrame Player API code asynchronously.
 (function() {
   
@@ -134,17 +143,6 @@ function onPlayerReady(event) {
   
 })();
 
-
-
-
-// globals
-const statusUrl   = 'http://pi1b.lan/status/';
-
-// After the API code downloads, replace the 'ytplayer' element with an <iframe> and YouTube player .
-var player;
-
-// timer to check for video added to empty queue when autoplay is on, or autoplay enabled when queue not empty
-var timeoutId;
 
 
 // document ready
@@ -202,14 +200,15 @@ function onAutoplayBlocked(event) {
 }
 
 
+
 // YTplayer error handler
 function onPlayerError(event) {
 
   const errCode = event.data;
   const errTxt = (150 == errCode)
-    ? 'Playback disabled by video owner'
+    ? 'video owner blocked playback'
     : 'unknown code';
-  const errMsg = 'Error ' + errCode + ': ' + errTxt;
+  const errMsg = 'Err ' + errCode + ': ' + errTxt + ' ' + player.getVideoData()['video_id'];
   console.log(errMsg);
   
   // save the error message then remove the troublesome video from the queue and continue

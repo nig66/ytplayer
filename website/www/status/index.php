@@ -1,10 +1,13 @@
 <?php
 
 /**
-* /status
 *
-* stack: push, pop, peek (or top), isEmpty, size.
-* queue: enqueue, dequeue, front (or peek), isEmpty, size.
+* handle HTTP GET & POST requsts to /status
+*
+* Queue v stack;
+*
+*   stack: push, pop, peek (or top), isEmpty, size.
+*   queue: enqueue, dequeue, front (or peek), isEmpty, size.
 */
 
 # show all errors
@@ -14,7 +17,7 @@ error_reporting(E_ALL);
 
 # class files
 require_once('../../Router.php');         # mini route handler
-require_once('../../Player.php');         # player status controller
+require_once('../../Player.php');         # player state controller
 
 
 # consts
@@ -22,29 +25,52 @@ $status_filename = '../../status.json';
 $queue_filename = '../../queue.txt';
 
 
-# helper classes
+# init helper classes
 $player = new Player($status_filename, $queue_filename);
 $router = new Router();
 
 
 
 /***************************************
-* handle HTTP GET requests
+* HTTP GET requests
 *
-*   GET '?state'      show the status as a json str { autoplay, peek, size }
-*   GET '?queue'      show the raw queue file
+*   GET '?state'      show the state as a json str eg;
+*     {
+*       "autoplay": "on",
+*       "size": 3,
+*       "peek": "QC8iQqtG0hg",
+*       "mem": "0.35 MB"
+*     }
+*
+*   GET '?queue'      show the raw queue file containing a list of line-separated 11 char YouTube videoId's eg;
+* 
+*     QC8iQqtG0hg
+*     DAjMZ6fCPOo
+*     46W7uzj-51w
 *
 * deprecated;
+*
 *   GET '?size'       get the size of the queue
 *   GET '?autoplay'   get the autoplay status: on|off
 *   GET '?peek'       peek at the first videoId
 *   GET '?mem'        get the memory used by php
+*
+*
+* HTTP POST requests
+*
+*   POST ''                       enqueue videoId
+*   POST '?dequeue'               dequeue the first videoId
+*   POST '?dequeueId=<videoId>'   dequeue the specified videoId eg. "?dequeueId=QC8iQqtG0hg"
+*   POST '?autoplay'              toggle autoplay
+*   POST '?clear'                 clear the queue
+*   POST '?message=<msg>'         set the status message eg. "?message=hello world"
+*   POST '?unsetMessage           unset the status message
 ****************************************/
 
 
 /**
 * HTTP request handler: GET '?state'
-* get the current state as a json string
+* return the current state as a json string
 *   {
 *     "autoplay": "on"|"off",
 *     "peek":     "<videoId>",
@@ -60,7 +86,7 @@ $router->get('state', function($state) use($player) {
 
 /**
 * HTTP request handler: GET '?queue'
-* show the raw queue file
+* return the raw queue file
 */
 $router->get('queue', function($queue) use($queue_filename) {
   header("Content-Type: text/plain");
@@ -68,22 +94,9 @@ $router->get('queue', function($queue) use($queue_filename) {
 });
 
 
-
-/***************************************
-* handle HTTP POST requests
-*
-*   POST ''                       enqueue videoId
-*   POST '?dequeue'               dequeue the first videoId
-*   POST '?dequeueId=<videoId>'   dequeue the specified videoId eg. "?dequeueId=QC8iQqtG0hg"
-*   POST '?autoplay'              toggle autoplay
-*   POST '?clear'                 clear the queue
-*   POST '?message=<msg>'         set the status message
-*   POST '?unsetMessage           unset the status message
-****************************************/
-
 /**
 * HTTP request handler: POST ''
-* enqueue videoId
+* enqueue a videoId
 */
 $router->post('', function() use($player) {
   $videoId = trim($_POST["videoId"]);
@@ -160,10 +173,12 @@ $router->post('unsetMessage', function($unsetMessage) use($player) {
 
 /************************
 *
-* invoke the appropriate handler if there is one, otherwise return the status webpage
+* if there is an appropriate handler invoke it then die(),
+* otherwise fall through and return the status webpage html
 *
 */
 $output = $router->match($_SERVER['REQUEST_METHOD'], $_SERVER['QUERY_STRING']);
+
 if (!is_null($output))
   die($output);
 
