@@ -1,36 +1,48 @@
 <?php
 
 
-
 /**
-* player.getState()           # get the state as a jsonable array
-* player.getQueue()           # get the queue as an array
-
-* player.enqueue(videoId)     # add videoId to the queue
-* player.dequeue()            # dequeue the first videoId
-* player.dequeueId(videoId)   # dequeue the first videoId
-* player.toggleAutoplay()     # toggle autoplay
-* player.getMessage()         # get status message
-* player.setMessage()         # set status message
-* player.unsetMessage()       # unSet status message
+* Usage;
 *
-* $player = new Player($status_filename, $queue_filename);
+*   $player = new Player($status_filename, $queue_filename);
+*
+*   player.getState()           # get the player state as a jsonable array
+*   player.getQueue()           # get the queue as an array of YouTube videoId's
+* 
+*   player.enqueue(videoId)     # add a videoId to the queue
+*   player.dequeue()            # dequeue the first videoId
+*   player.dequeueId(videoId)   # dequeue the first videoId only if it matches the supplied videoId
+*   player.toggleAutoplay()     # toggle autoplay on|off
+*   player.getMessage()         # get the status message
+*   player.setMessage()         # set the status message
+*   player.unsetMessage()       # unSet the status message
 */
 
 
 class Player {
   
-  private $status_filename;
-  private $queue_filename;
+  private $status_filename;         # relative path/filename of the status file
+  private $queue_filename;          # relative path/filename of the queue file
 
-  private $arr_status;
-  private $arr_queue;
+  private $arr_status;              # the autoplay status: on|off and optionally a message
+  private $arr_queue;               # the video queue as an array of YouTube videoId's
+  
   
 
   /**
-  * constructor
+  * Constructor
+  *
+  * @param string $status_filename    Relative path/filename of the status file eg. "../../status.json";
+  *
+  *   {"autoplay":"on", "message":"hello world"}
+  *
+  * @param string $queue_filename     Relative path/filename of the queue file eg. "../../queue.txt";
+  *
+  *   QC8iQqtG0hg
+  *   DAjMZ6fCPOo
+  *   46W7uzj-51w
   */
-  function __construct($status_filename, $queue_filename) {
+  function __construct(string $status_filename, string $queue_filename) {
 
     # filenames
     $this->status_filename = $status_filename;
@@ -48,10 +60,12 @@ class Player {
   }
     
     
+    
   /**
-  * getState()
+  * Get the current state of the player.
   *
-  * retval: a jsonable associative array eg.;
+  * @return array       A jsonable associative array eg.;
+  *
   *   [
   *     "autoplay"  => "on",
   *     "size"      => 2,
@@ -82,10 +96,13 @@ class Player {
   }
   
   
+  
   /**
-  * getQueue()
+  * Get the queue of YouTube video Id's
   *
-  * retval: the queue as an array of videoId strings eg. [ "QC8iQqtG0hg", "DAjMZ6fCPOo", ... ]
+  * @return array     The queue as an array of videoId strings eg;
+  *
+  *   [ "QC8iQqtG0hg", "DAjMZ6fCPOo", ... ]
   */
   function getQueue() {
     
@@ -96,7 +113,10 @@ class Player {
 
 
   /**
-  * enqueue(videoId)     # add videoId to the queue and save the queue
+  * Add a videoId to the queue and save the queue.
+  *
+  * @param string $videoId  The 11 char videoId which uniquely identitifes every video on YouTube, including shorts.
+  * @return string          A msg confirming that the specified videoId has been enqueued.
   */
   function enqueue($videoId) {
     
@@ -111,13 +131,14 @@ class Player {
 
 
   /**
-  * dequeue()            # dequeue the first videoId and save the queue
+  * Dequeue the first videoId in the queue and save the queue.
   *
-  * retval:
-  *   {
+  * @return array     Return a jsonnable array containing the videoId of the dequeued video and the autoplay state;
+  *
+  *   [
   *     "videoId": "<videoId>",
   *     "autoplay": "on|off"
-  *   }
+  *   ]
   */
   function dequeue() {
     
@@ -131,6 +152,7 @@ class Player {
     // if there is at least one video in the queue, remove the first one and return its videoId
     $videoId = array_shift($this->arr_queue);
     $str = implode(PHP_EOL, $this->arr_queue);          # imploding an empty array returns an empty string ''
+    
     file_put_contents($this->queue_filename, $str);
     
     return [ "videoId"  => $videoId,                    # videoId string
@@ -138,14 +160,17 @@ class Player {
   }
   
   
+  
   /**
-  * dequeue the first videoId if it matches $videoId and save the queue
+  * Dequeue the first videoId only if it matches the supplied $videoId, and save the queue.
   *
-  * retval:
-  *   {
+  * @param string $videoId  The videoId of the video to be dequeued.
+  * @return array           Return a jsonnable array containing the videoId of the dequeued video and the autoplay state;
+  *
+  *   [
   *     "videoId": "<videoId>",
   *     "autoplay": "on|off"
-  *   }
+  *   ]
   */
   function dequeueId(string $videoId): array
   {
@@ -171,9 +196,9 @@ class Player {
   
   
   /**
-  * toggleAutoplay()     # toggle autoplay
+  * Toggle the autoplay state on|off.
   *
-  * retval: autoplay as a string "on"|"off"
+  * @return string     The autoplay state as a string after it has been toggled; "on"|"off".
   */
   function toggleAutoplay() {
     
@@ -188,7 +213,9 @@ class Player {
   
   
   /**
-  * get status message
+  * Get the status message if there is one.
+  *
+  * @return string    The message string eg. "Hello world".
   */
   function getMessage(): string
   {
@@ -200,20 +227,23 @@ class Player {
 
 
   /**
-  * set status message
+  * Set the status message.
+  *
+  * @param string $message    The message to store in the state file eg. "Hello world".
+  * @return string            The message.
   */
   function setMessage(string $message): string
   {
     $this->arr_status['message'] = $message;
     $this->saveStatus();
     
-    return $message; //$this->arr_status['message'];
+    return $message;
   }
 
 
 
   /**
-  * unset status message
+  * Unset the status message.
   */
   function unsetMessage(): void
   {
@@ -232,7 +262,7 @@ class Player {
   
   
   /**
-  * save the status json file
+  * Save the status json file.
   */
   private function saveStatus(): void
   {
