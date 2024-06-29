@@ -209,9 +209,9 @@ if (!is_null($output))
     <h1><a href=".">Status</a></h1>
 
     <!-- Enqueue -->
-    <form class="pd" action="/status/" method="post">
+    <input id="videoUrl" type="text" name="videoUrl">
+    <form class="pd" action="/status/?queue" method="post">
       <input id="videoId" type="hidden" name="videoId">
-      <input id="videoUrl" type="text" name="videoUrl">
       <div>
         <input id="submitVideoId" type="submit" value="Enqueue">&nbsp;<span id="showVideoId"></span>
       </div>
@@ -261,6 +261,13 @@ if (!is_null($output))
 -->
 
     <div>
+      <!-- delete the videoId if at the top of the queue -->
+      <form class="pd" action="/status/?queue_delete_ifTop" method="post">
+        <input type="text" name="videoId" value="QC8iQqtG0hg">
+        <input type="submit" value="delete_ifTop">
+      </form>
+      <br/>
+      
       <!-- delete the videoId at the top of the queue -->
       <form class="inline pd" action="/status/?queue_delete_top" method="post">
         <input type="submit" value="Dequeue">

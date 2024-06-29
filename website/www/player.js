@@ -76,7 +76,11 @@ function onPlayerStateChange(event) {
       
   console.log('Video ended');
   
-  fetch(statusUrl + '?dequeueId=' + videoId, { method:"POST" })      // dequeue the current video
+  fetch(statusUrl + '?queue_delete_ifTop', {
+      method: "POST",
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+      body: new URLSearchParams({ videoId: player.getVideoData()['video_id'] })
+    })
     .then(() => {
       setTimeout(qNext, 0, event.target)                // q up the next video if there is one    
     })
@@ -109,7 +113,7 @@ function qNext(target) {
     .then((flg) => {
       if (flg) {
         //console.log('Start timer');
-        setTimeout(qNext, 4000, target);
+        setTimeout(qNext, 3000, target);
       }
     })
 }
