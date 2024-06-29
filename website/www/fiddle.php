@@ -53,18 +53,18 @@ require_once('../Router.php');          # mini route handler
 *
 * queue HTTP handlers;
 *
-*   GET     "?queue"                        return the queue eg. { "QC8iQqtG0hg", "DAjMZ6fCPOo" }
-*   POST    "?queue"          body:[id=?]   add the specified videoId to the end of the queue
-*   DELETE  "?queue.top"                    delete the videoId at the top of the queue                
-*   DELETE  "?queue.ifTop"    body:[id=?]   delete the specified videoId only if it is at the top of the queue
-*   DELETE  "?queue.all"                    empty the queue
+*   GET     "?queue"                                get the queue eg. { "QC8iQqtG0hg", "DAjMZ6fCPOo" }
+*   POST    "?queue" body:[videoId=?]               add the specified videoId to the end of the queue
+*   POST    "?queue_delete_top"                     delete the videoId at the top of the queue                
+*   POST    "?queue_delete_ifTop" body:[videoId=?]  delete the specified videoId only if it is at the top of the queue
+*   POST    "?queue_delete_all"                     empty the queue
 *
 * state HTTP handlers;
 *
-*   GET     "?state"                        return the player state
-*   POST    "?state.message"  body:[msg=?]  set the status message to the specified text eg. "hello world" 
-*   DELETE  "?state.message"                unset the status message
-*   PUT     "?state.autoplay"               toggle autoplay "on" | "off"
+*   GET     "?state"                          return the player state
+*   POST    "?state_message"  body:[msg=?]    set the status message to the specified text eg. "hello world" 
+*   POST    "?state_unset_message"            unset the status message
+*   POST    "?state_autoplay"                 toggle autoplay "on" | "off"
 */
 
 
@@ -77,8 +77,8 @@ function test_router() {
     return "Hello root"; 
   });
 
-  $router->get('fred', function() {
-    return "Hi there fred";
+  $router->get('fred_add', function($hi) {
+    return "Hi there fred '{$hi}'";
   });
 
   $router->get('foo', function($msg) {

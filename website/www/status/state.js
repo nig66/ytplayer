@@ -21,6 +21,7 @@ function tickerRefresh() {
 }
 
 
+//method: element.attributes['method'].value,
 // intercept form submits
 document.querySelectorAll("form.pd").forEach(function(element) {
   

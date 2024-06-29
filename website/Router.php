@@ -74,6 +74,30 @@ class Router
 
 
   /**
+  * create an HTTP PUT route map
+  *
+  * @param string $route          route to map to the given handler
+  * @param function $handler      handler for the given route
+  */
+  public function put(string $route, callable $handler): void
+  {
+    $this->add_route('PUT', $route, $handler);
+  }
+
+
+  /**
+  * create an HTTP DELETE route map
+  *
+  * @param string $route          route to map to the given handler
+  * @param function $handler      handler for the given route
+  */
+  public function delete(string $route, callable $handler): void
+  {
+    $this->add_route('DELETE', $route, $handler);
+  }
+
+
+  /**
   * invoke the matching route handler for the given HTTP request method and queryString
   *
   * @param string $request_method       an HTTP request method eg. "GET", "POST, "PUT", "DELETE" etc
