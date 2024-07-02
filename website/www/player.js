@@ -67,8 +67,11 @@ function onPlayerStateChange(event) {
   console.log('Player state change ' + playerState + ' ' + videoId);
   
   if (1 == playerState) {                       // state: PLAYING
-    const duration = player.getDuration();      // available just after video starts playing. after buffering?
-    console.log('duration: ' + duration);
+    //const duration = player.getDuration();      
+    console.log('--duration: ' + player.getDuration());      // available just after video starts playing. after buffering?
+    console.log('-----title: ' + player.getVideoData().title);      // available when state is 3:buffering & 1:playing
+    console.log('----author: ' + player.getVideoData().author);     // available when state is 3:buffering & 1:playing
+    // console.log(JSON.stringify(player.getVideoData(), null, '\t'));  // show all getVideoData()
   }
   
   if (event.data !== 0)         // 0 = ENDED
