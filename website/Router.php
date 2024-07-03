@@ -1,8 +1,20 @@
 <?php
 
 /**
-* Simple router to match HTTP requests by REQUEST_METHOD and QUERY_STRING only.
+* A simple router to match HTTP requests by REQUEST_METHOD and <token> only.
 *
+* HTTP request formats;
+*   GET  /                  eg. GET /
+*   GET  /?token            eg. GET /?foobar
+*   GET  /?params           eg. GET /?param1=val1&param2=val2
+*   GET  /?token&params     eg. GET /?foobar&param1=val1&param2=val2
+*   POST /                  eg. POST /  
+*   POST /?token            eg. POST /?foobar
+*   POST /                  eg. POST /
+*     body: params                body: param1=val1&param2=val2
+*   POST /?token            eg. POST /?foobar
+*     body: params                body: param1=val1&param2=val2
+* 
 * usage;
 *   $router = new Router; 
 * 
@@ -27,15 +39,6 @@
 *   $str = $router->match('GET', 'bar&hi=there')    # returns 'Wassup there';
 *   $str = $router->match('POST', 'qiz') 
 *      body: foo=abc&bar=xyz                        # returns 'foo is abc and bar is xyz';
-*
-*
-* HTTP requests;
-*
-*   GET ?route&param1=val1&param2=val2...
-*
-*   POST|PUT|DELETE ?route
-*     body: &param1=val1&param2=val2...
-*
 *
 * https://www.php-fig.org/psr/psr-12/
 */
@@ -74,64 +77,89 @@ class Router
 
 
   /**
-  * create an HTTP PUT route map
+  * invoke the matching route handler for the given HTTP request method and query string and return its value
   *
-  * @param string $route          route to map to the given handler
-  * @param function $handler      handler for the given route
-  */
-  public function put(string $route, callable $handler): void
-  {
-    $this->add_route('PUT', $route, $handler);
-  }
-
-
-  /**
-  * create an HTTP DELETE route map
+  * @param string $request_method       an HTTP request method; GET|POST
+  * @param string $query_string         an HTTP request query string eg. "?foo&hi=there&colour=red"
   *
-  * @param string $route          route to map to the given handler
-  * @param function $handler      handler for the given route
+  * @return ?string                     return the value returned by the handler
   */
-  public function delete(string $route, callable $handler): void
+  public function match(string $request_method, string $query_string): ?string
   {
-    $this->add_route('DELETE', $route, $handler);
-  }
-
-
-  /**
-  * invoke the matching route handler for the given HTTP request method and queryString
-  *
-  * @param string $request_method       an HTTP request method eg. "GET", "POST, "PUT", "DELETE" etc
-  * @param string $queryString          an HTTP request queryString eg. "foo?hi=there&colour=red"
-  */
-  public function match(string $request_method, string $queryString): ?string
-  {
-    $queryArray = $this->parse_params_string($queryString);  # convert the queryString to an array
-    
-    $route = (0 === count($queryArray))         # if there is no queryString
-      ? ''                                      # then $route is the empty string ""
-      : array_key_first($queryArray);           # otherwise $route is the first key of the queryString
-    
-    array_shift($queryArray);          # drop the route from the array leaving only the params, if any
-      
-    # for GET requests the params are in the queryString, otherwise the params are in the request body
-    $paramsArray = ('GET' == $request_method)
-      ? $queryArray                                                       # get the params from the queryString
-      : $this->parse_params_string(file_get_contents('php://input'));     # get params from the request body
+    $query_array = $this->parse_params_string($query_string);     # convert the query string into an array
+    $token = $this->get_token($query_array);
+    $params = $this->get_params($request_method, $query_array);
 
     # invoke the matching handler
-    return $this->invoke_handler($route, $paramsArray, $this->routes[$request_method]);
+    return $this->invoke_handler($token, $params, $this->routes[$request_method]);
+  }
+
+  
+  
+  
+  /*************************
+  *
+  * Private.
+  *
+  */
+  
+  
+  /**
+  * an array of route maps, each mapping a method/token key pair to a handler function [method][token] => handler() eg.;
+  *
+  *   [
+  *     ['GET']  =>
+  *        [ 'token1' => myfn1(),
+  *          'token2' => myfn2() ],
+  *     ['POST'] =>
+  *        [ 'foo' => bar(),
+  *          'hi'  => world() ]
+  *   ]
+  */
+  private array $routes = [];
+  
+
+  /**
+  * given a set of query params, return either '' or the first param key
+  *
+  * @param array $query_params      the queryString as an array
+  * @return string                  token
+  */
+  private function get_token($query_params): string
+  {
+    # if there are no query params or the first param has a value then the token is the empty string
+    if ((0 == count($query_params)) || ('' !== reset($query_params)))
+      return '';
+    
+    # otherwise the token is the key of the first param
+    return array_key_first($query_params);
   }
 
 
-
-  /*************************
-  * Private.
-  */
-  
-  private $routes = [];
-  
   /**
-  * add route
+  * return a set of params for the given request method and query params
+  *
+  * @param string $request_method       the HTTP request method either "GET" or "POST"
+  * @param array $query_params          the HTTP request query string as an array
+  *
+  * @return array                       a set of params either from the query string or the request body
+  */
+  private function get_params(string $request_method, array $query_params): array
+  {
+    # for HTTP POST requests, return params from the request body
+    if ('POST' == $request_method)
+      return $this->parse_params_string(file_get_contents('php://input'));
+      
+    # if there are query params but the first param value is the empty string then drop the first param
+    if ((0 !== count($query_params)) && ('' === reset($query_params)))
+      array_shift($query_params);
+
+    return $query_params;
+  }
+
+
+  /**
+  * add a route
   */
   private function add_route(string $method, string $route, $handler): void
   {
@@ -142,7 +170,7 @@ class Router
   
   
   /**
-  * for a given route, find a matching route and invoke its handler function
+  * for a given route, invoke the matching route handler
   */
   private function invoke_handler(string $route, array $paramsArray, array $routes): ?string
   {
