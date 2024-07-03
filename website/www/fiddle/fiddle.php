@@ -1,7 +1,7 @@
 <?php
 
 declare(strict_types=1);
-require_once('../Router.php');          # mini route handler
+//require_once('../Router.php');          # mini route handler
 
 
 
@@ -93,7 +93,7 @@ function test_router() {
 }
 
 
-$output = test_router();
+//$output = test_router();
 
 ?>
 <!DOCTYPE html>
@@ -102,14 +102,47 @@ $output = test_router();
     <title>test</title>
   </head>
   <body>
-    <xmp>QUERY_STRING: <?=$_SERVER['QUERY_STRING']?></xmp>
-    <xmp>output: <?=$output?></xmp>
-
-    <!-- send message -->
-    <form action="?qux" method="post">
-      <label for="A">qux</label>
-      <input type="text" name="test" value="hello world" id="A">
-      <input type="submit" value="Send">
+    <h1>heooo world</h1>
+    
+    <form class="confirmSubmit" action="?delete" method="post">
+      <input type="submit" value="Delete">
     </form>
+
+    <form class="confirmSubmit" action="?clear" method="post">
+      <input type="submit" value="Clear">
+    </form>
+    
+    <script>
+      /**
+      * Confirm 'ok / cancel';
+      *   <form class="confirmSubmit" action="?delete" method="post">
+      *     <input type="hidden" name="videoId" value="abcdefghijk"/>
+      *     <input type="submit" value="Delete"/>
+      *   </form>
+      */
+      
+      function ready() {
+        document.querySelectorAll('.confirmSubmit').forEach((element) => {
+          element.addEventListener('submit', (event) => {
+            event.preventDefault();
+            var p = element.action;
+            var q = element.children[0].value;
+            var r = element.querySelector("input").value;
+            var s = element.querySelector("input[type='submit']").value;
+            console.log('bar ' + q);
+            console.log('biz ' + r);
+            console.log('baz ' + s);
+            //return confirm("hello world");
+          });
+        });
+      }
+
+      // DOMContentLoaded
+      window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(ready, 0);
+      });
+      
+<!-- not court 11 -->
+    </script>
   </body>
 </html>
