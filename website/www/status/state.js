@@ -45,6 +45,39 @@ document.querySelectorAll("form.pd").forEach(function(element) {
 
 
 /**
+* open confirmation dialog box 'ok / cancel' before submitting the form
+*
+*   <form class="confirmSubmit" action="?delete" method="post">
+*     <input type="hidden" name="videoId" value="abcdefghijk"/>
+*     <input type="submit" value="Delete"/>
+*   </form>
+*/
+function formSubmitHandler(event) {
+  
+  event.preventDefault();
+  
+  var form = event.target;
+  var submitButtonValue = form.querySelector("input[type='submit']").value;
+  var ok = confirm(submitButtonValue);
+  
+  // if user clicks ok on the confirm dialog then submit the form
+  if (ok) {
+    fetch(form.action, {
+      method: "post",
+      body: new URLSearchParams(new FormData(form))
+    })
+      .then((response) => response.text())
+      .then((text) => {
+        console.log(text);
+        setTimeout(function() {
+          refeshUI();
+        }, 0)
+      });
+  }
+}
+
+
+/**
 * refresh the changeable UI elements; autoplay status, queued count, status json, queue
 */
 function refeshUI() {
@@ -84,6 +117,11 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById("showVideoId").innerHTML = videoId;
       document.getElementById("videoId").value = videoId;
     }
+  });
+
+  // add event listener to all confirmSubmit forms
+  document.querySelectorAll('.confirmSubmit').forEach((element) => {
+    element.addEventListener('submit', formSubmitHandler);
   });
   
 });

@@ -210,12 +210,31 @@ if (!is_null($output))
 
     <!-- Enqueue -->
     <input id="videoUrl" type="text" name="videoUrl">
-    <form class="pd" action="/status/?queue" method="post">
-      <input id="videoId" type="hidden" name="videoId">
-      <div>
-        <input id="submitVideoId" type="submit" value="Enqueue">&nbsp;<span id="showVideoId"></span>
-      </div>
+    <div>
+      <form class="inline pd" action="/status/?queue" method="post">
+        <input id="videoId" type="hidden" name="videoId">
+          <input id="submitVideoId" type="submit" value="Enqueue">&nbsp;<span id="showVideoId"></span>
+      </form>
+
+      <!-- delete the videoId at the top of the queue -->
+      <form class="inline pd" action="/status/?queue_delete_top" method="post">
+        <input type="submit" value="Dequeue">
+      </form>
+      
+      <!-- empty the queue -->
+      <form class="inline confirmSubmit" action="/status/?queue_delete_all" method="post">
+        <input type="submit" value="Clear">
+      </form>
+    </div>
+    
+    <br/>
+    
+    <!-- delete the videoId if at the top of the queue -->
+    <form class="pd" action="/status/?queue_delete_ifTop" method="post">
+      <input type="text" name="videoId" value="QC8iQqtG0hg">
+      <input type="submit" value="delete_ifTop">
     </form>
+
     <br/>
     
     <!-- Short videos -->
@@ -261,33 +280,17 @@ if (!is_null($output))
 -->
 
     <div>
-      <!-- delete the videoId if at the top of the queue -->
-      <form class="pd" action="/status/?queue_delete_ifTop" method="post">
-        <input type="text" name="videoId" value="QC8iQqtG0hg">
-        <input type="submit" value="delete_ifTop">
-      </form>
-      <br/>
-      
-      <!-- delete the videoId at the top of the queue -->
-      <form class="inline pd" action="/status/?queue_delete_top" method="post">
-        <input type="submit" value="Dequeue">
-      </form>
-      
-      <!-- empty the queue -->
-      <form class="inline pd" action="/status/?queue_delete_all" method="post">
-        <input type="submit" value="Clear">
-      </form>
+      <xbr/>
 
+      <!-- set message -->
+      <form class="inline pd" action="/status/?state_message" method="post">
+        <label for="v5">message</label>
+        <input type="text" name="message" value="hello foo world" id="v5">
+        <input type="submit" value="Set">
+      </form>
       <!-- unset message -->
       <form class="inline pd" action="/status/?state_unset_message" method="post">
-        <input type="submit" value="Unset msg">
-      </form>
-      
-      <!-- send message -->
-      <form class="inline pd" action="/status/?state_message" method="post">
-        <label for="v5">send message</label>
-        <input type="text" name="message" value="hello foo world" id="v5">
-        <input type="submit" value="Send">
+        <input type="submit" value="Unset">
       </form>
 
     </div>
