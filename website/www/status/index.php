@@ -176,6 +176,24 @@ $output = $router->match($_SERVER['REQUEST_METHOD'], $_SERVER['QUERY_STRING']);
 if (!is_null($output))
   die($output);
 
+/**
+* queue HTTP handlers
+* -------------------
+* GET  "?queue"                                  get the queue eg. { "QC8iQqtG0hg", "DAjMZ6fCPOo" }
+* POST "?queue"              body:[videoId=?]    add the specified videoId to the end of the queue
+* POST "?queue_delete_top"                       delete the videoId at the top of the queue                
+* POST "?queue_delete_ifTop" body:[videoId=?]    delete the specified videoId only if it is at the top of the queue
+* POST "?queue_delete_all"                       empty the queue
+*
+*
+* state HTTP handlers
+* -------------------
+* GET  "?state"                          return the player state
+* POST "?state_message"  body:[msg=?]    set the status message to the specified text eg. "hello world" 
+* POST "?state_unset_message"            unset the status message
+* POST "?state_autoplay"                 toggle autoplay "on" | "off"
+*/
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -184,7 +202,7 @@ if (!is_null($output))
     <meta name="viewport" content="width=device-width, initial-scale=1.2">
     <style>
       label,input[text] {display:flex; flex-direction:column}
-      label {color:cyan}
+      label,.lbl {color:cyan}
       a {color:yellow}
       xmp, span {color:white}
       form.inline {display:inline}
@@ -208,80 +226,68 @@ if (!is_null($output))
   
     <h1><a href=".">Status</a></h1>
 
-    <!-- Enqueue -->
-    <input id="videoUrl" type="text" name="videoUrl">
-    <div>
-      <form class="inline pd" action="/status/?queue" method="post">
-        <input id="videoId" type="hidden" name="videoId">
-          <input id="submitVideoId" type="submit" value="Enqueue">&nbsp;<span id="showVideoId"></span>
-      </form>
+    <!--
+    * Enqueue
+    * -->
+    <input id="videoUrl" type="text" name="videoUrl" />
+    <form class="inline pd" action="/status/?queue" method="post">
+      <input id="videoId" type="hidden" name="videoId">
+      <div>
+        <input id="submitVideoId" type="submit" value="Enqueue">
+        <span id="showVideoId"></span>
+      </div>
+    </form>
 
-      <!-- delete the videoId at the top of the queue -->
+    <br/>
+    
+    <!--
+    * Dequeue Id: delete the videoId if at the top of the queue
+    * -->
+    <form class="pd" action="/status/?queue_delete_ifTop" method="post">
+      <input type="text" name="videoId" value="QC8iQqtG0hg" size="11">
+      <input type="submit" value="Dequeue Id">
+    </form>
+
+    <p>
+      <!--
+      * Dequeue: delete the videoId at the top of the queue
+      * -->
       <form class="inline pd" action="/status/?queue_delete_top" method="post">
         <input type="submit" value="Dequeue">
       </form>
       
-      <!-- empty the queue -->
+      <!--
+      * Empty: empty the queue
+      * -->
       <form class="inline confirmSubmit" action="/status/?queue_delete_all" method="post">
-        <input type="submit" value="Clear">
+        <input type="submit" value="Empty">
       </form>
-    </div>
-    
-    <br/>
-    
-    <!-- delete the videoId if at the top of the queue -->
-    <form class="pd" action="/status/?queue_delete_ifTop" method="post">
-      <input type="text" name="videoId" value="QC8iQqtG0hg">
-      <input type="submit" value="delete_ifTop">
-    </form>
-
-    <br/>
+    </p>
     
     <!-- Short videos -->
     <form class="pd" action="/status/?queue" method="post">
-      <label for="v1">milky way</label>
-      <input type="text" name="videoId" value="QC8iQqtG0hg" id="v1">
+      <input type="text" name="videoId" value="QC8iQqtG0hg" size="11">
       <input type="submit" value="Post">
+      <span class="lbl">milky way</span>
     </form>
     <form class="pd" action="/status/?queue" method="post">
-      <label for="v2">5 second timer</label>
-      <input type="text" name="videoId" value="DAjMZ6fCPOo" id="v2">
+      <input type="text" name="videoId" value="DAjMZ6fCPOo" size="11">
       <input type="submit" value="Post">
+      <span class="lbl">5 second timer</span>
     </form>
     <form class="pd" action="/status/?queue" method="post">
-      <label for="v3">Nescafe - 6 Second Ad</label>
-      <input type="text" name="videoId" value="46W7uzj-51w" id="v3">
+      <input type="text" name="videoId" value="46W7uzj-51w" size="11">
       <input type="submit" value="Post">
+      <span class="lbl">Nescafe - 6s Ad</span>
     </form>
     <form class="pd" action="/status/?queue" method="post">
-      <label for="v4">blocked by author</label>
-      <input type="text" name="videoId" value="vZLd81IHGQw" id="v4">
+      <input type="text" name="videoId" value="vZLd81IHGQw" size="11">
       <input type="submit" value="Post">
+      <span class="lbl">blocked by auth</span>
     </form>
     <br/>
   
-<!--
-* queue HTTP handlers
-* -------------------
-* GET  "?queue"                                  get the queue eg. { "QC8iQqtG0hg", "DAjMZ6fCPOo" }
-* POST "?queue"              body:[videoId=?]    add the specified videoId to the end of the queue
-* POST "?queue_delete_top"                       delete the videoId at the top of the queue                
-* POST "?queue_delete_ifTop" body:[videoId=?]    delete the specified videoId only if it is at the top of the queue
-* POST "?queue_delete_all"                       empty the queue
-*
-*
-* state HTTP handlers
-* -------------------
-* GET  "?state"                          return the player state
-* POST "?state_message"  body:[msg=?]    set the status message to the specified text eg. "hello world" 
-* POST "?state_unset_message"            unset the status message
-* POST "?state_autoplay"                 toggle autoplay "on" | "off"
-
--->
-
     <div>
-      <xbr/>
-
       <!-- set message -->
       <form class="inline pd" action="/status/?state_message" method="post">
         <label for="v5">message</label>
@@ -292,7 +298,6 @@ if (!is_null($output))
       <form class="inline pd" action="/status/?state_unset_message" method="post">
         <input type="submit" value="Unset">
       </form>
-
     </div>
     
     <!-- state -->
