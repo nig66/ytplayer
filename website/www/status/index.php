@@ -223,8 +223,13 @@ if (!is_null($output))
     
     <!-- Size of the queue -->
     <span id="queueSize">Queued: <?=$player->getState()['size']?></span>
+
   
+    <!--
+    * Status
+    * -->
     <h1><a href=".">Status</a></h1>
+
 
     <!--
     * Enqueue
@@ -257,10 +262,10 @@ if (!is_null($output))
       </form>
       
       <!--
-      * Empty: empty the queue
+      * Clear queue: empty the queue
       * -->
       <form class="inline confirmSubmit" action="/status/?queue_delete_all" method="post">
-        <input type="submit" value="Empty">
+        <input type="submit" value="Clear queue">
       </form>
     </p>
     
