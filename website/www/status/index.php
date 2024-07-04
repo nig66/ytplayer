@@ -119,6 +119,8 @@ $router->post('queue_delete_all', function() use($queue_filename) {
 *   POST    "?state_message"  body:[msg=?]    set the status message to the specified text eg. "hello world" 
 *   POST    "?state_unset_message"            unset the status message
 *   POST    "?state_autoplay"                 toggle autoplay "on" | "off"
+*   POST    "?state_save_video"               save info about the video
+*             body: videoId=<str>&author=<str>&title=<str>
 */
 
 /**
@@ -160,6 +162,23 @@ $router->post('state_unset_message', function() use($player) {
 $router->post('state_autoplay', function() use($player) {
   $player->toggleAutoplay();
   return $player->getState()['autoplay'];
+});
+
+
+/**
+* HTTP POST '?state_save_video': toggle autoplay
+*/
+$router->post('state_save_video', function($videoId, $author, $title) use($player) {
+  $arr = [
+    'videoId' => $videoId,
+    'author'  => $author,
+    'title'   => $title
+  ];
+  $json = json_encode($arr, JSON_PRETTY_PRINT);
+  $ret = file_put_contents("../../ids/{$videoId}.json", $json);
+  return (false === $ret)
+    ? 'failed'
+    : 'ok';
 });
 
 
@@ -305,6 +324,19 @@ if (!is_null($output))
       </form>
     </div>
     
+    <!--
+    * save video
+    * -->
+    <p>
+      <form class="pd" action="/status/?state_save_video" method="post">
+        <input type="hidden" name="videoId" value="abcdefghijl"/>
+        <input type="hidden" name="author" value="nig"/>
+        <input type="hidden" name="title" value="my groovy video"/>
+        <input type="submit" value="Save video"/>
+      </form>
+    </p>
+    
+
     <!-- state -->
     <xmp id="stateJson"><?=json_encode($player->getState(), JSON_PRETTY_PRINT)?></xmp>
     

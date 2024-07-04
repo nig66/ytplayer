@@ -72,6 +72,17 @@ function onPlayerStateChange(event) {
     console.log('-----title: ' + player.getVideoData().title);      // available when state is 3:buffering & 1:playing
     console.log('----author: ' + player.getVideoData().author);     // available when state is 3:buffering & 1:playing
     // console.log(JSON.stringify(player.getVideoData(), null, '\t'));  // show all getVideoData()
+    
+    // save video info to the server
+    fetch(statusUrl + '?state_save_video', {
+      method: "POST",
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+      body: new URLSearchParams({
+        videoId: player.getVideoData()['video_id'],
+        author: player.getVideoData().author,
+        title: player.getVideoData().title
+      })
+    })
   }
   
   if (event.data !== 0)         // 0 = ENDED
