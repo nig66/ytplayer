@@ -34,6 +34,12 @@ document.querySelectorAll("form.pd").forEach(function(element) {
       body: new URLSearchParams(new FormData(element))
     })
     .then((response) => {
+      var flg = element.querySelector("input[id='submitVideoId']");
+      if (flg) {
+        document.getElementById('videoUrl').value = '';
+        document.getElementById('videoId').value = '';
+        document.getElementById('showVideoId').innerHTML = '';
+      }
       setTimeout(function() {
         refeshUI();
       }, 0)
