@@ -1,7 +1,7 @@
 <?php
 
 declare(strict_types=1);
-require_once('../Router.php');          # mini route handler
+//require_once('../Router.php');          # mini route handler
 
 
 
@@ -93,7 +93,18 @@ function test_router() {
 }
 
 
-$output = test_router();
+function get_body_params(): array
+{
+  $paramString = file_get_contents('php://input');
+  parse_str($paramString, $paramsArray);         # convert the queryString to an array
+  return $paramsArray;
+}
+
+if ('POST' === $_SERVER['REQUEST_METHOD']) {
+  $output = get_body_params();
+  $str = print_r($output, true);
+  die($str);
+}
 
 ?>
 <!DOCTYPE html>
@@ -102,14 +113,67 @@ $output = test_router();
     <title>test</title>
   </head>
   <body>
-    <xmp>QUERY_STRING: <?=$_SERVER['QUERY_STRING']?></xmp>
-    <xmp>output: <?=$output?></xmp>
-
-    <!-- send message -->
-    <form action="?qux" method="post">
-      <label for="A">qux</label>
-      <input type="text" name="test" value="hello world" id="A">
-      <input type="submit" value="Send">
+    <h1>heooo world</h1>
+    
+    <form class="confirmSubmit" action="?delete" method="post">
+      <input type="hidden" name="videoId" value="abcdefghijk"/>
+      <input type="submit" value="Delete">
     </form>
+
+    <form class="confirmSubmit" action="?clear" method="post">
+      <input type="hidden" name="hello" value="world"/>
+      <input type="hidden" name="foo" value="bar"/>
+      <input type="submit" value="Clear">
+    </form>
+    <!--
+    <xmp><?=$output?></xmp>
+    -->
+    
+    <script>
+      /**
+      * open confirmation dialog box 'ok / cancel' before submitting the form
+      *
+      *   <form class="confirmSubmit" action="?delete" method="post">
+      *     <input type="hidden" name="videoId" value="abcdefghijk"/>
+      *     <input type="submit" value="Delete"/>
+      *   </form>
+      */
+      
+      function formSubmitHandler(event) {
+        
+        event.preventDefault();
+        
+        var form = event.target;
+        var submitButtonValue = form.querySelector("input[type='submit']").value;
+        var ok = confirm(submitButtonValue);
+        
+        // if user clicks ok on the confirm dialog then submit the form
+        if (ok) {
+          fetch(form.action, {
+            method: "post",
+            body: new URLSearchParams(new FormData(form))
+          })
+            .then((response) => response.text())
+            .then((text) => {
+              console.log(text);
+            });
+        }
+      }
+      
+      // webpage loaded and ready
+      function pageReady() {
+        
+        // add event listener to all confirmSubmit buttons
+        document.querySelectorAll('.confirmSubmit').forEach((element) => {
+          element.addEventListener('submit', formSubmitHandler);
+        });
+      }
+
+      // DOMContentLoaded
+      window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(pageReady, 0);
+      });
+      
+    </script>
   </body>
 </html>

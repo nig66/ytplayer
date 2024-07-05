@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<!--
+To ensure the webpage is loaded and displayed, wait for the 'load' event instead of the 'DOMContentLoaded'
+event, then do whatever within setTimeout(whatever, 0);
+-->
+<html>
+  <head>
+    <title>test</title>
+  </head>
+  <body>
+    <h1>heooo world</h1>
+    <script>
+      function bar() {
+        alert('hi');
+      }
+      window.addEventListener('load', () => {
+        setTimeout(bar, 0);
+      });
+      //foo();
+    </script>
+  </body>
+</html>
