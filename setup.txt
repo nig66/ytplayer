@@ -86,8 +86,8 @@ sudo cp /usr/lib/php/8.2/{php.ini-development,php.ini}    # Use the development 
 sudo apt install git-all
 cd /var/sites/nigl
 git clone https://github.com/nig66/ytplayer.git
-
-
+sudo chown -R nig ytplayer
+git config --global --add safe.directory '%(prefix)///nigl/vol1/var/sites/ytplayer'
 
 
 /**********************
