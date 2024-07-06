@@ -5,7 +5,7 @@
 */
 
 // globals
-const statusUrl   = 'http://pi1b.lan/status/';
+const statusUrl   = 'https://zeb.uk.to/status/';
 
 
 /**
