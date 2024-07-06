@@ -30,7 +30,8 @@ event handling
 
 
 // globals
-const statusUrl   = 'http://pi1b.lan/status/';
+//const statusUrl   = 'http://pi1b.lan/status/';
+const statusUrl   = '/status/';
 
 // After the API code downloads, replace the 'ytplayer' element with an <iframe> and YouTube player .
 var player;
