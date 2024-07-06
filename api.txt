@@ -1,0 +1,189 @@
+
+remotes, extensions and players send actions to server -> reconciles state -> responds with new state
+
+         player1 player2...
+server < remote1 remote2...
+         extension1 extension1...
+
+/player/?getState
+  state:      playing|paused
+  videoId:    <id>
+  videoTime:  <n>
+  autoplay:   on|off
+  message:    <str>
+  mem:        "0.35 MB"
+
+client timers;
+  every few seconds, players, remotes & extensions set their state to match the server by polling it
+
+remote & extension users:
+  send to server play, pause, mute, unmute, autoplayOn, autoplayOff, addId
+player user:
+  send to server playId <time>, pauseId <time>, gotoTimeId <time>, mute, unmute
+player events:
+  ENDED: send endedId to server -> responds with state
+  PAUSED: send pausedId <time> to server -> responds with state
+
+rest api
+--------
+/player
+  ?play ?playId ?pause ?pauseId ?gotoTime ?gotoTimeId ?endedId ?mute ?unmute
+/queue
+  ?addId ?empty ?dequeue
+/message
+  ?set ?unset
+/autoplay
+  ?turnOn ?turnOff
+
+user play/pause on iFrame player ->
+
+     0:ENDED
+     1:PLAYING
+     2:PAUSED
+     5:CUED
+
+Summary of player and user commands;
+- queue user actions; add {id}, delete {uid}, empty
+- player user actions; toggleAutoplay, dequeue, pause, play
+- player; dequeue {id}, setMsg {msg}, unsetMsg
+
+Player;
+- properties { videoId: <id>, autoplay: on | off, state: playing | paused }
+- user actions: 
+- events: finished
+
+Queue;
+- user actions: add {id}, delete {uid}, empty
+- [ video, ... ]
+
+
+Player
+..get state can be polled any time to tell the player what it should be doing
+..post video id when finished playing video. state returned.
+
+Response to any command is always the current state to tell the player what it should be doing.
+
+Queue
+.. user can manually enqueue or dequeue videos
+
+
+
+=====================================================
+
+
+
+
+recipes to handle
+=================
+/
+/?params
+/token
+/token/?params
+
+
+
+
+
+
+user paths
+----------
+/
+/player
+/remote
+
+
+*   stack: push, pop, peek (or top), isEmpty, size.
+*   queue: enqueue, dequeue, front (or peek), isEmpty, size.
+
+
+restful api
+-----------
+/queue
+  GET  /                                 get the queue eg. { "QC8iQqtG0hg", "DAjMZ6fCPOo" }
+  POST /              body:[videoId=?]   add the specified videoId to the end of the queue
+  POST /?dequeue                         dequeue the video at the top of the queue                
+  POST /?dequeue_id   body:[videoId=?]   dequeue the video at the top of the queue only if it matches the supplied videoId
+  POST /?empty                           empty the queue
+
+/state
+  GET  /                                return the player state
+  POST /?set_msg"     body:[msg=?]      set the status message to the specified text eg. "hello world" 
+  POST /?unset_msg"                     unset the status message
+  POST /?autoplay"                      toggle autoplay "on" | "off"
+
+
+  stateChange 
+    -1:unstarted
+     0:ended
+     1:PLAYING
+     2:PAUSED
+     3:buffering
+     5:CUED
+
+
+
+YouTube URL recipes
+===================
+/
+/?params
+/token
+/token/?params
+/{id}?params
+/token/{id}?params
+
+
+YouTube URLs
+============
+''
+/watch?v={id}
+/v={id}&t={int}s
+/?v={id}&list={s34}
+/?v={id}&list={s34}&index={int}
+/watch?v={id}
+/watch?v={id}&t={int}s
+/watch?v={id}&list={s34}
+/watch?v={id}&list={s34}&index={int}
+/shorts/{id}?si={s16}
+
+Shared Youtube video URLs
+-------------------------
+https://youtu.be/{id}?si={id}
+https://youtube.com/shorts/{id}?si={s16}
+
+
+
+// console.log(JSON.stringify(player.getVideoData(), null, '\t'));
+
+video data to save;
+{
+	"video_id": "QC8iQqtG0hg",
+	"author": "Panama City News Herald",
+	"title": "5 Second Video: Watch the Milky Way Rise",
+}
+
+all video data;
+{
+	"video_id": "QC8iQqtG0hg",
+	"author": "Panama City News Herald",
+	"title": "5 Second Video: Watch the Milky Way Rise",
+	"isPlayable": true,
+	"errorCode": null,
+	"video_quality": "large",
+	"video_quality_features": [],
+	"backgroundable": true,
+	"eventId": "zEmEZua_K4azvdIPtPqj8AY",
+	"cpn": "2FBi4_VWLWDomonc",
+	"isLive": false,
+	"isWindowedLive": false,
+	"isManifestless": false,
+	"allowLiveDvr": false,
+	"isListed": true,
+	"isMultiChannelAudio": false,
+	"hasProgressBarBoundaries": false,
+	"isPremiere": false,
+	"itct": "CAAQu2kiEwjm1d_4gImHAxWGWU8EHTT9CG4=",
+	"playerResponseCpn": "",
+	"progressBarStartPositionUtcTimeMillis": null,
+	"progressBarEndPositionUtcTimeMillis": null,
+	"paidContentOverlayDurationMs": 0
+}

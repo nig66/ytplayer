@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html>
   <body>
+    <form class="refresh" action="http://pi1b.lan/status/?state_autoplay" method="post">
+      <input type="submit" value="Autoplay"/> <span id="autoplay">?</span>
+    </form>
+    
     <h1>Hi popup</h1>
 
-    <form class="refresh" action="http://pi1b.lan/status/" method="post">
+    <input id="videoUrl" type="text" name="videoUrl"/>
+    <form class="refresh" action="http://pi1b.lan/status/?queue" method="post">
       <input id="videoId" type="hidden" name="videoId"/>
-      <input id="videoUrl" type="text" name="videoUrl"/>
       <input type="submit" value="Submit"/>&nbsp;<span id="showVideoId"></span>
     </form>
     
@@ -14,10 +18,6 @@
       <span id="size">?</span>
     </p>
 
-    <form class="refresh" action="http://pi1b.lan/status/?autoplay" method="post">
-      <input type="submit" value="Autoplay"/> <span id="autoplay">?</span>
-    </form>
-    
     <script src="popup.js"></script>
     
   </body>

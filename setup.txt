@@ -2,6 +2,23 @@
 Setup a Raspberry Pi bare-bones Web server (PHP, Nginx)
 =======================================================
 
+
+workflow starting in dev
+------------------------
+git add *                   # stage all changed files
+git commit -m "My msg"      # commit changes. Creates a savepoint
+git checkout master         # switch to master
+git merge --no-edit dev     # merge changes on the dev branch with master without text editor popup??
+
+merge changes from windows into remote
+--------------------------------------
+git pull --no-edit origin master  # pull any newer changes from github avoiding text editor popping up
+git push origin master            # push local changes to github
+git checkout dev                  # switch to dev
+git merge master
+
+
+
 files
 -----
 access.log  /var/log/nginx/access.log
@@ -84,10 +101,17 @@ sudo cp /usr/lib/php/8.2/{php.ini-development,php.ini}    # Use the development 
 * install git           *
 ************************/
 sudo apt install git-all
+<<<<<<< HEAD
 cd /var/sites
 sudo git clone https://github.com/nig66/ytplayer.git
 
 
+=======
+cd /var/sites/nigl
+git clone https://github.com/nig66/ytplayer.git
+sudo chown -R nig ytplayer
+git config --global --add safe.directory '%(prefix)///nigl.lan/vol1/var/sites/ytplayer'
+>>>>>>> 06b3fa2ce26b142fa2ae76d295cd11f6d3e790d6
 
 
 /**********************
