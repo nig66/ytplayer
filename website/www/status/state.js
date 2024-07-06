@@ -7,7 +7,8 @@
 
 
 // globals
-const statusUrl   = 'http://pi1b.lan/status/';
+//const statusUrl   = 'http://pi1b.lan/status/';
+const statusUrl   = '/status/';
 
 
 // do first refresh
