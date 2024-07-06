@@ -84,8 +84,8 @@ sudo cp /usr/lib/php/8.2/{php.ini-development,php.ini}    # Use the development 
 * install git           *
 ************************/
 sudo apt install git-all
-cd /var/sites/nigl
-git clone https://github.com/nig66/ytplayer.git
+cd /var/sites
+sudo git clone https://github.com/nig66/ytplayer.git
 
 
 
@@ -99,7 +99,7 @@ sudo systemctl reload nginx                           # Browsing to pi3b.local s
 sudo touch /etc/nginx/sites-available/nigl.conf
 sudo chown nig /etc/nginx/sites-available/nigl.conf   # Make it editable via samba.
 sudo ln -s /etc/nginx/sites-available/nigl.conf /etc/nginx/sites-enabled/   # Create a link to the site .conf file.
-sudo mkdir -p /var/sites/nigl                         # -p for path i.e. recursively create dirs.
+sudo mkdir -p /var/sites/                             # -p for path i.e. recursively create dirs.
 
 Either manually enter a nigl.conf file;
 
@@ -107,7 +107,7 @@ Either manually enter a nigl.conf file;
 
     server {
       server_name pi3b.local;
-      root        /var/sites/nigl/www;
+      root        /var/sites/ytplayer/www;
       index       index.html;
       
       # pass PHP scripts to FastCGI (PHP-FPM) server
@@ -125,3 +125,22 @@ Enable the nigl site;
 
   sudo nginx -t                       # Test the nginx config files.
   sudo systemctl reload nginx         # Browsing to pi1b.local should now show "404 Not Found".
+
+
+
+
+/**********************
+* git workflow
+**********************/
+
+Starting in dev;
+  git add *                   # stage all changed files
+  git commit -m "My msg"      # commit changes. Creates a savepoint
+  git checkout master         # switch to master
+  git merge --no-edit dev     # merge changes on the dev branch with master without text editor popup??
+
+Merge changes from windows into remote;
+  git pull --no-edit origin master  # pull any newer changes from github avoiding text editor popping up
+  git push origin master            # push local changes to github
+  git checkout dev                  # switch to dev
+  git merge master
