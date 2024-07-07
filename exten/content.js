@@ -1,7 +1,6 @@
 /***********************************
 * Run script on every page matching;
 *
-*   http://pi1b.lan/status/*
 *   https://www.youtube.com/*
 *
 */
@@ -9,7 +8,7 @@
 
 /******************
 * pi1b stuff
-*   http://pi1b.lan/status/*
+*   https://zeb.uk.to/status/*
 */
 
 // content
@@ -56,7 +55,7 @@ function xinsertButton(element) {
 }
 
 /**
-*  <form class="pd" action="/status/" method="post">
+*  <form class="pd" action="/status/?queue" method="post">
 *    <input type="hidden" name="videoId" value="QC8iQqtG0hg">
 *    <input type="submit" value="Enqueue">
 *  </form>
@@ -64,7 +63,7 @@ function xinsertButton(element) {
 function buildEnqueueForm(videoId) {
   var myForm = document.createElement("form");
   myForm.setAttribute("class", "pd");
-  myForm.setAttribute("action", "http://pi1b.lan/status/");
+  myForm.setAttribute("action", "https://zeb.uk.to/status/?queue");
   myForm.setAttribute("method", "post");
   myForm.setAttribute("style", "position: relative");
   myForm.setAttribute("z-index", "999");
@@ -85,6 +84,7 @@ function buildEnqueueForm(videoId) {
 /**
 * prevent forms redirect
 *
+*/
 document.querySelectorAll("form.pd").forEach(function(element) {
   element.addEventListener("submit", function(event){
     event.preventDefault();
@@ -94,7 +94,6 @@ document.querySelectorAll("form.pd").forEach(function(element) {
     });
   })
 });
-*/
 
 
 
