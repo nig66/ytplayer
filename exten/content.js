@@ -6,50 +6,58 @@
 */
 
 
-
 // globals
 const statusUrl   = 'https://zeb.uk.to/status/';
 
 
 // init
-setTimeout(insertEnqueueButtons, 3000);
+setTimeout(insertEnqueueButtons, 4000);
 
 
-// insert enqueue buttons
+
+/**
+* iterate over the video links. for each one add a button which when
+* clicked then grabs the videoId and enqueue's it
+*/
 function insertEnqueueButtons() {
-  const selector1 = "a[href^='/watch?v='][id='video-title']";
-  const selector2 = "a[href^='/watch?v='][id='video-title-link']";
-  document.querySelectorAll(selector1).forEach((element) => { insertButton(element) });
-  document.querySelectorAll(selector2).forEach((element) => { insertButton(element) });
+  
+  //const selector = 'a[href^="/watch?v="][id="video-title"]';
+  const selector = 'a[href^="/watch?v="][id="video-title-link"]';
+  
+  document.querySelectorAll(selector).forEach((link) => {
+    
+    // create an enqueue button
+    var myButton = document.createElement('button');
+    myButton.innerHTML = 'Enqueue';
+    
+    // add a click event handler
+    myButton.addEventListener('click', (event) => {
+      var videoId = getHrefVideoId(link.getAttribute('href'));
+      enqueueVideo(videoId);
+    });
+    
+    // insert the button
+    link.parentNode.parentNode.appendChild(myButton);
+  });
 }
 
 
 /**
-* insert an enqueue button
+* enqueue the specified videoId
 */
-function insertButton(element) {
-  
-  var videoId = getHrefVideoId(element);
-  var myButton = document.createElement('button');
-  myButton.innerHTML = 'Add ' + videoId;
-  
-  myButton.addEventListener('click', (event) => {
-    fetch(statusUrl + '?queue', {
-      method: "post",
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-      body: new URLSearchParams({ videoId: videoId })
-    })
-  });
-  
-  element.parentNode.parentNode.appendChild(myButton);
+function enqueueVideo(videoId) {
+  fetch(statusUrl + '?queue', {
+    method: "post",
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+    body: new URLSearchParams({ videoId: videoId })
+  })
 }
 
 
 /**
 * return a videoId from the href of the given element
 */
-function getHrefVideoId(element) {
-  var href = element.getAttribute('href');
+function getHrefVideoId(href) {
   var index = href.indexOf('?');
   var queryString = href.substring(index + 1);
   var params = new URLSearchParams(queryString);
@@ -66,6 +74,79 @@ function getHrefVideoId(element) {
 *
 */
 
+/**
+* insert an enqueue button
+*
+function insertButton(element) {
+  
+  var href = element.getAttribute('href');
+  var videoId = getHrefVideoId(href);
+  var myButton = document.createElement('button');
+  myButton.innerHTML = 'Add ' + videoId;
+  
+  myButton.addEventListener('click', (event) => {
+    fetch(statusUrl + '?queue', {
+      method: "post",
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+      body: new URLSearchParams({ videoId: videoId })
+    })
+  });
+  
+  element.parentNode.parentNode.appendChild(myButton);
+}
+*/
+
+
+/*
+// insert enqueue buttons
+function xinsertEnqueueButtons() {
+  const selector1 = "a[href^='/watch?v='][id='video-title']";
+  const selector2 = "a[href^='/watch?v='][id='video-title-link']";
+  document.querySelectorAll(selector1).forEach((element) => { insertButton(element) });
+  document.querySelectorAll(selector2).forEach((element) => { insertButton(element) });
+}
+*/
+
+/*
+function zinsertEnqueueButtons() {
+  const selector = 'a[href^="/watch?v="]';
+  var linkElements = document.querySelectorAll(selector);
+  linkElements.forEach((element) => {
+    var videoId = getHrefVideoId(element.getAttribute('href'));
+    element.style = 'border: 2px solid yellow';
+    element.appendChild(document.createTextNode(' foo:' + videoId));
+    element.addEventListener('mouseenter', (event) => {
+      event.target.style = 'border: 1px solid red';
+      var videoId = getHrefVideoId(event.target.getAttribute('href'));
+      event.target.appendChild(document.createTextNode(' foo:' + videoId));
+    });
+  });
+}
+
+function yinsertEnqueueButtons() {
+  //const selector = "a[href^='/watch?v=']";
+  const selector = '[href^="/watch?v="]';
+  var elements = document.querySelectorAll(selector);
+  elements.forEach((element) => {
+    element.style = 'border: 2px solid red';
+    var myDiv = document.createElement('div');
+    var href = element.getAttribute('href');
+    var videoId = getHrefVideoId(href);
+    myDiv.innerHTML = 'href:' + href + ' id:' + videoId;
+    element.after(myDiv);       // insert myDiv after element
+  });
+}
+*/
+
+/**
+  link.style = 'border: 2px solid yellow';
+  button.style = 'border: 2px solid red';
+  button.innerHTML = 'videoId: ' + videoId;
+  link.style = 'border: 2px solid green';       // change link style
+  var id = getHrefVideoId(link.getAttribute('href'));
+  var button = event.target;
+  document.querySelectorAll('a[href^="/watch?v="]').forEach((link) => {
+*/
 /**
 * prevent forms redirect
 function addSubmitButtonListener(formElement) {
