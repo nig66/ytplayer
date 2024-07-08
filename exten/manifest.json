@@ -8,8 +8,12 @@
     "default_icon": "popup.png"
   },
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "alarms"
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "js": ["content.js"],
