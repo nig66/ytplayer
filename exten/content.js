@@ -29,6 +29,7 @@ function insertEnqueueButtons() {
     // create an enqueue button
     var myButton = document.createElement('button');
     myButton.innerHTML = 'Enqueue';
+    myButton.setAttribute('id', 'enqueue');
     
     // add a click event handler
     myButton.addEventListener('click', (event) => {
@@ -36,9 +37,12 @@ function insertEnqueueButtons() {
       enqueueVideo(videoId);
     });
     
-    // insert the button
-    link.parentNode.parentNode.appendChild(myButton);
+    // insert the button if one does not already exist
+    if ('enqueue' !== link.parentNode.parentNode.lastChild.getAttribute('id'))
+      link.parentNode.parentNode.appendChild(myButton);
   });
+  
+  setTimeout(insertEnqueueButtons, 3000);
 }
 
 
