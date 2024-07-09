@@ -8,6 +8,7 @@
 const statusUrl   = 'https://zeb.uk.to/status/';
 
 
+
 /**
 * DOMContentLoaded event listener
 */
