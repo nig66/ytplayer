@@ -59,7 +59,7 @@ du -h ~                                       # disk usage, human readable, home
 * picks up any dependency changes that may have been made.
 **********************/
 sudo apt update
-sudo apt full-upgrade
+sudo apt full-upgrade -y
 sudo apt install jed -y
 sudo apt autoremove -y
 

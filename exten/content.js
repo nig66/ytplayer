@@ -8,11 +8,11 @@
 
 // globals
 const statusUrl   = 'https://zeb.uk.to/status/';
+var baseUrl = 'https://www.youtube.com/';
 
 
 // init
 setTimeout(insertEnqueueButtons, 4000);
-
 
 
 /**
@@ -21,9 +21,7 @@ setTimeout(insertEnqueueButtons, 4000);
 */
 function insertEnqueueButtons() {
   
-  //const selector = 'a[href^="/watch?v="][id="video-title"]';
-  const selector = 'a[href^="/watch?v="][id="video-title-link"]';
-  
+  var selector = 'a[href^="/watch?v="][id="video-title-link"]';
   document.querySelectorAll(selector).forEach((link) => {
     
     // create an enqueue button
@@ -33,17 +31,42 @@ function insertEnqueueButtons() {
     
     // add a click event handler
     myButton.addEventListener('click', (event) => {
-      var videoId = getHrefVideoId(link.getAttribute('href'));
-      enqueueVideo(videoId);
+      var href = link.getAttribute('href');
+      var params = new URL(href, baseUrl).searchParams;
+      enqueueVideo(params.get('v'));
     });
-    
-    // insert the button if one does not already exist
-    if ('enqueue' !== link.parentNode.parentNode.lastChild.getAttribute('id'))
+
+    // add the button to the dom if one has not previously been added
+    if ('BUTTON' !== link.parentNode.parentNode.lastChild.nodeName)
       link.parentNode.parentNode.appendChild(myButton);
   });
   
-  setTimeout(insertEnqueueButtons, 3000);
+  
+  /**
+  * shorts
+  */
+  var selector = 'a[href^="/shorts/"][id="thumbnail"]';
+  document.querySelectorAll(selector).forEach((link) => {
+    
+    // create an enqueue button
+    var myButton = document.createElement('button');
+    myButton.innerHTML = 'Enqueue';
+    myButton.setAttribute('id', 'enqueue');
+    
+    // add a click event handler
+    myButton.addEventListener('click', (event) => {
+      var href = link.getAttribute('href');
+      enqueueVideo(href.substring(8));
+    });
+
+    // add the button to the dom if one has not previously been added
+    if ('BUTTON' !== link.parentNode.parentNode.lastChild.nodeName)
+        link.parentNode.parentNode.appendChild(myButton);
+  });
+  
+  setTimeout(insertEnqueueButtons, 4000);
 }
+
 
 
 /**
@@ -58,18 +81,6 @@ function enqueueVideo(videoId) {
 }
 
 
-/**
-* return a videoId from the href of the given element
-*/
-function getHrefVideoId(href) {
-  var index = href.indexOf('?');
-  var queryString = href.substring(index + 1);
-  var params = new URLSearchParams(queryString);
-  return params.get('v');
-}
-
-
-
 
 
 /********************************
@@ -77,6 +88,51 @@ function getHrefVideoId(href) {
 * junk
 *
 */
+
+
+/*
+  //if ('enqueue' !== link.parentNode.parentNode.lastChild.getAttribute('id'))
+      //console.log(href);
+      //console.log(videoId);
+      //var videoId = getHrefVideoId(link.getAttribute('href'));
+      //var index = href.indexOf('?');
+      //var queryString = href.substring(index + 1);
+      //var params = new URLSearchParams(queryString);
+      //var params = new URLSearchParams(href);
+      //var videoId = params.get('v');
+*/
+
+
+/**
+* return a videoId from the href of the given element
+function getHrefVideoId(href) {
+  var index = href.indexOf('?');
+  var queryString = href.substring(index + 1);
+  var params = new URLSearchParams(queryString);
+  return params.get('v');
+}
+*/
+
+
+/**
+* build a button which when clicked, grabs the videoId and enqueue's it
+function buildButton(link) {
+
+  // create an enqueue button
+  var myButton = document.createElement('button');
+  myButton.innerHTML = 'Enqueue';
+  myButton.setAttribute('id', 'enqueue');
+  
+  // add a click event handler
+  myButton.addEventListener('click', (event) => {
+    var videoId = getHrefVideoId(link.getAttribute('href'));
+    enqueueVideo(videoId);
+  });
+  
+  return myButton;
+}
+*/
+
 
 /**
 * insert an enqueue button
