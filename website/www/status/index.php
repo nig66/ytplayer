@@ -107,7 +107,9 @@ $router->get('queue', function() use($queue_filename) {
 */
 $router->post('queue', function($videoId) use($player) {
   $player->enqueue($videoId);
-  return "enqueued {$videoId}";
+  header('Content-type: application/json');
+  return json_encode($player->getState(), JSON_PRETTY_PRINT);
+  //return "enqueued {$videoId}";
 });
 
 /**

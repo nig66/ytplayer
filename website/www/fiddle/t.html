@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    <script>
+      console.log('hi');
+      
+      var myElement = document.createElement('button');
+      myElement.innerHTML = 'foobar';
+      
+      // add event listener
+      myElement.addEventListener('click', function(event) {
+        console.log('hello');
+      })
+      myElement.addEventListener('click', (event) => {
+        console.log('there');
+      })
+      
+      // add to document
+      var myBody = document.querySelector('body');
+      myBody.insertBefore(myElement, myBody.firstChild);
+    </script>
+  </body>
+</html>
